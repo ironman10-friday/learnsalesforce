@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Salesforce Learning Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0d14;
+    --surface: #111620;
+    --surface2: #171d2b;
+    --surface3: #1e2636;
+    --border: #252e42;
+    --accent: #00a8e8;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --text: #e8edf7;
+    --text2: #8a97b5;
+    --text3: #4a5568;
+    --glow: rgba(0,168,232,0.15);
+    --glow2: rgba(124,58,237,0.15);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG GRID */
+  body::before {
+    content:'';
+    position:fixed; inset:0; z-index:0;
+    background-image:
+      linear-gradient(rgba(0,168,232,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,168,232,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none;
+  }
+
+  /* LAYOUT */
+  .app { position:relative; z-index:1; display:flex; min-height:100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width:240px; flex-shrink:0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display:flex; flex-direction:column;
+    position:fixed; left:0; top:0; bottom:0;
+    z-index:100;
+    transition: transform 0.3s ease;
+  }
+  .sidebar-logo {
+    padding:24px 20px 20px;
+    border-bottom:1px solid var(--border);
+  }
+  .logo-mark {
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:18px;
+    letter-spacing:-0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    line-height:1;
+  }
+  .logo-sub { font-size:11px; color:var(--text3); margin-top:4px; letter-spacing:1px; text-transform:uppercase; }
+
+  .sidebar-nav { flex:1; padding:16px 12px; overflow-y:auto; }
+  .nav-section-label {
+    font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--text3); padding:8px 8px 4px; font-weight:600;
+  }
+  .nav-item {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 10px; border-radius:8px;
+    cursor:pointer; color:var(--text2); font-size:13.5px;
+    transition:all 0.2s; margin-bottom:2px;
+    border:1px solid transparent;
+  }
+  .nav-item:hover { background:var(--surface2); color:var(--text); }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(0,168,232,0.12), rgba(124,58,237,0.08));
+    border-color: rgba(0,168,232,0.25);
+    color:var(--accent);
+  }
+  .nav-icon { font-size:16px; width:20px; text-align:center; }
+
+  .sidebar-footer {
+    padding:16px; border-top:1px solid var(--border);
+  }
+  .streak-pill {
+    display:flex; align-items:center; gap:8px;
+    background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(239,68,68,0.1));
+    border:1px solid rgba(245,158,11,0.3);
+    border-radius:10px; padding:10px 12px;
+    font-size:13px;
+  }
+  .streak-fire { font-size:18px; }
+  .streak-num { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; color:var(--accent4); }
+  .streak-label { font-size:11px; color:var(--text3); }
+
+  /* MAIN */
+  .main { margin-left:240px; flex:1; padding:28px 32px; min-height:100vh; }
+
+  /* TOPBAR */
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:28px;
+  }
+  .page-title { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; }
+  .page-title span { background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .topbar-actions { display:flex; gap:10px; align-items:center; }
+  .btn {
+    padding:8px 16px; border-radius:8px; border:none; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500;
+    transition:all 0.2s;
+  }
+  .btn-ghost {
+    background:transparent; border:1px solid var(--border);
+    color:var(--text2);
+  }
+  .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+  .btn-primary {
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+  }
+  .btn-primary:hover { opacity:0.85; transform:translateY(-1px); }
+
+  /* SECTION */
+  .section { display:none; }
+  .section.active { display:block; }
+
+  /* CARDS */
+  .card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:20px;
+  }
+  .card-title {
+    font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
+    letter-spacing:0.5px; color:var(--text2); text-transform:uppercase;
+    margin-bottom:14px;
+  }
+
+  /* DASHBOARD GRID */
+  .dash-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:20px; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:18px 20px;
+    position:relative; overflow:hidden;
+  }
+  .stat-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  }
+  .stat-card.blue::before { background:linear-gradient(90deg,var(--accent),transparent); }
+  .stat-card.purple::before { background:linear-gradient(90deg,var(--accent2),transparent); }
+  .stat-card.green::before { background:linear-gradient(90deg,var(--accent3),transparent); }
+  .stat-card.amber::before { background:linear-gradient(90deg,var(--accent4),transparent); }
+  .stat-value { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; line-height:1; }
+  .stat-label { font-size:12px; color:var(--text3); margin-top:6px; }
+  .stat-sub { font-size:11px; color:var(--text3); margin-top:8px; }
+  .stat-badge {
+    display:inline-block; padding:2px 8px; border-radius:20px;
+    font-size:10px; font-weight:600; letter-spacing:0.5px;
+  }
+  .badge-up { background:rgba(16,185,129,0.15); color:var(--accent3); }
+  .badge-warn { background:rgba(245,158,11,0.15); color:var(--accent4); }
+
+  /* PROGRESS BARS */
+  .progress-bar-wrap { margin-bottom:14px; }
+  .progress-bar-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .progress-bar-name { font-size:13px; }
+  .progress-bar-pct { font-size:12px; color:var(--text3); font-family:'Syne',sans-serif; font-weight:700; }
+  .progress-bar-bg { height:6px; background:var(--surface3); border-radius:99px; overflow:hidden; }
+  .progress-bar-fill { height:100%; border-radius:99px; transition:width 0.6s ease; }
+
+  /* MODULE CARDS */
+  .modules-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .module-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:18px; cursor:pointer;
+    transition:all 0.25s; position:relative; overflow:hidden;
+  }
+  .module-card:hover {
+    border-color:rgba(0,168,232,0.4);
+    transform:translateY(-2px);
+    box-shadow:0 8px 32px rgba(0,0,0,0.3);
+  }
+  .module-card.locked { opacity:0.5; pointer-events:none; }
+  .module-card-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
+  .module-icon { font-size:28px; }
+  .module-status-chip {
+    font-size:10px; font-weight:700; letter-spacing:0.5px;
+    padding:3px 9px; border-radius:20px; text-transform:uppercase;
+  }
+  .chip-done { background:rgba(16,185,129,0.15); color:var(--accent3); }
+  .chip-active { background:rgba(0,168,232,0.15); color:var(--accent); }
+  .chip-locked { background:rgba(74,85,104,0.3); color:var(--text3); }
+  .chip-todo { background:rgba(124,58,237,0.12); color:var(--accent2); }
+  .module-name { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:4px; }
+  .module-desc { font-size:12px; color:var(--text3); line-height:1.5; }
+  .module-meta { display:flex; gap:12px; margin-top:12px; }
+  .module-meta-item { font-size:11px; color:var(--text3); }
+  .module-meta-item span { color:var(--text2); font-weight:500; }
+  .module-progress { margin-top:10px; }
+
+  /* TIMETABLE */
+  .timetable-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+  .day-col {}
+  .day-header {
+    text-align:center; font-size:11px; font-weight:700; color:var(--text3);
+    text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;
+    padding:6px; border-radius:6px;
+  }
+  .day-header.weekend { color:var(--accent2); }
+  .day-block {
+    border-radius:8px; padding:10px 8px; margin-bottom:6px;
+    font-size:11px; line-height:1.4;
+    border:1px solid transparent;
+  }
+  .block-theory {
+    background:rgba(0,168,232,0.08);
+    border-color:rgba(0,168,232,0.2);
+    color:var(--accent);
+  }
+  .block-coding {
+    background:rgba(124,58,237,0.1);
+    border-color:rgba(124,58,237,0.25);
+    color:#a78bfa;
+  }
+  .block-review {
+    background:rgba(16,185,129,0.08);
+    border-color:rgba(16,185,129,0.2);
+    color:var(--accent3);
+  }
+  .block-rest {
+    background:rgba(74,85,104,0.1);
+    border-color:rgba(74,85,104,0.15);
+    color:var(--text3);
+    font-style:italic;
+  }
+  .block-tag {
+    font-size:9px; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.8px; opacity:0.7; display:block; margin-bottom:2px;
+  }
+
+  /* TOPIC LIST */
+  .topic-list { display:flex; flex-direction:column; gap:6px; }
+  .topic-item {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px; border-radius:10px;
+    background:var(--surface2); border:1px solid var(--border);
+    cursor:pointer; transition:all 0.2s;
+  }
+  .topic-item:hover { border-color:rgba(0,168,232,0.3); }
+  .topic-item.done { opacity:0.6; }
+  .topic-check {
+    width:18px; height:18px; border-radius:5px;
+    border:2px solid var(--border); display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; font-size:11px; transition:all 0.2s;
+  }
+  .topic-item.done .topic-check {
+    background:var(--accent3); border-color:var(--accent3); color:#fff;
+  }
+  .topic-name { font-size:13.5px; flex:1; }
+  .topic-item.done .topic-name { text-decoration:line-through; color:var(--text3); }
+  .topic-type {
+    font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .type-theory { background:rgba(0,168,232,0.12); color:var(--accent); }
+  .type-coding { background:rgba(124,58,237,0.12); color:#a78bfa; }
+  .type-both { background:rgba(245,158,11,0.12); color:var(--accent4); }
+
+  /* NOTES */
+  .notes-area {
+    width:100%; min-height:200px;
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:10px; padding:14px; color:var(--text);
+    font-family:'DM Sans',sans-serif; font-size:13.5px;
+    resize:vertical; outline:none; line-height:1.6;
+    transition:border-color 0.2s;
+  }
+  .notes-area:focus { border-color:rgba(0,168,232,0.4); }
+
+  /* TABS */
+  .tabs { display:flex; gap:4px; margin-bottom:20px; background:var(--surface2); padding:4px; border-radius:10px; }
+  .tab-btn {
+    flex:1; padding:8px 14px; border-radius:7px; border:none;
+    background:transparent; color:var(--text3); font-size:13px;
+    font-family:'DM Sans',sans-serif; cursor:pointer; transition:all 0.2s;
+    font-weight:500;
+  }
+  .tab-btn.active { background:var(--surface); color:var(--text); }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* LEADERBOARD / BADGES */
+  .badge-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .badge-item {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:12px; padding:16px 12px; text-align:center;
+    transition:all 0.2s;
+  }
+  .badge-item.earned {
+    border-color:rgba(245,158,11,0.4);
+    background:rgba(245,158,11,0.05);
+  }
+  .badge-item:not(.earned) { opacity:0.4; filter:grayscale(1); }
+  .badge-emoji { font-size:28px; margin-bottom:8px; }
+  .badge-name { font-size:11px; font-weight:600; color:var(--text2); }
+  .badge-desc { font-size:10px; color:var(--text3); margin-top:3px; }
+
+  /* TIMELINE */
+  .phase-timeline { display:flex; flex-direction:column; gap:0; }
+  .phase-item { display:flex; gap:16px; }
+  .phase-line-wrap { display:flex; flex-direction:column; align-items:center; }
+  .phase-dot {
+    width:14px; height:14px; border-radius:50%;
+    flex-shrink:0; margin-top:3px;
+    border:2px solid var(--border);
+  }
+  .phase-dot.done { background:var(--accent3); border-color:var(--accent3); }
+  .phase-dot.active { background:var(--accent); border-color:var(--accent); box-shadow:0 0 0 4px rgba(0,168,232,0.2); }
+  .phase-dot.todo { background:var(--surface3); }
+  .phase-connector { width:2px; flex:1; background:var(--border); min-height:20px; }
+  .phase-body { padding-bottom:24px; flex:1; }
+  .phase-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .phase-name { font-family:'Syne',sans-serif; font-weight:700; font-size:15px; }
+  .phase-duration { font-size:11px; color:var(--text3); }
+  .phase-desc { font-size:13px; color:var(--text2); line-height:1.5; }
+  .phase-topics-inline { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .pill {
+    font-size:11px; padding:3px 10px; border-radius:20px;
+    background:var(--surface3); color:var(--text3); border:1px solid var(--border);
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position:fixed; inset:0; z-index:999;
+    background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.3s;
+  }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:18px; padding:28px; max-width:540px; width:90%;
+    max-height:80vh; overflow-y:auto;
+    transform:scale(0.95); transition:transform 0.3s;
+  }
+  .modal-overlay.open .modal { transform:scale(1); }
+  .modal-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; }
+  .modal-title { font-family:'Syne',sans-serif; font-weight:800; font-size:20px; }
+  .modal-close {
+    background:var(--surface3); border:none; color:var(--text2);
+    width:30px; height:30px; border-radius:8px; cursor:pointer; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* QUOTE BOX */
+  .quote-box {
+    background:linear-gradient(135deg,rgba(0,168,232,0.08),rgba(124,58,237,0.06));
+    border:1px solid rgba(0,168,232,0.2); border-radius:12px;
+    padding:16px 20px; margin-bottom:20px;
+  }
+  .quote-text { font-style:italic; font-size:14px; color:var(--text2); line-height:1.6; }
+  .quote-attr { font-size:11px; color:var(--text3); margin-top:8px; }
+
+  /* TIMER */
+  .study-timer {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:14px; padding:20px; text-align:center; margin-bottom:20px;
+  }
+  .timer-display {
+    font-family:'Syne',sans-serif; font-size:48px; font-weight:800;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text; line-height:1; margin:8px 0;
+  }
+  .timer-label { font-size:12px; color:var(--text3); text-transform:uppercase; letter-spacing:1px; }
+  .timer-btns { display:flex; gap:8px; justify-content:center; margin-top:14px; }
+  .timer-btn {
+    padding:7px 20px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface); color:var(--text2); cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:13px; transition:all 0.2s;
+  }
+  .timer-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .timer-btn.running { border-color:var(--accent5); color:var(--accent5); }
+
+  /* CALENDAR HEATMAP */
+  .heatmap { display:flex; flex-wrap:wrap; gap:3px; }
+  .heat-cell {
+    width:14px; height:14px; border-radius:3px;
+    background:var(--surface3); cursor:pointer; transition:all 0.2s;
+  }
+  .heat-cell:hover { transform:scale(1.3); }
+  .heat-0 { background:var(--surface3); }
+  .heat-1 { background:rgba(0,168,232,0.2); }
+  .heat-2 { background:rgba(0,168,232,0.4); }
+  .heat-3 { background:rgba(0,168,232,0.65); }
+  .heat-4 { background:var(--accent); }
+  .heatmap-legend { display:flex; align-items:center; gap:4px; margin-top:10px; font-size:11px; color:var(--text3); }
+
+  .menu-toggle {
+    display:none; align-items:center; justify-content:center;
+    width:36px; height:36px; border-radius:8px;
+    border:1px solid var(--border); background:var(--surface);
+    cursor:pointer; color:var(--text2); font-size:18px;
+  }
+
+  /* RESPONSIVE */
+  @media(max-width:900px) {
+    .sidebar { transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); }
+    .main { margin-left:0; padding:20px 16px; }
+    .dash-grid { grid-template-columns:1fr 1fr; }
+    .modules-grid { grid-template-columns:1fr; }
+    .badge-grid { grid-template-columns:repeat(3,1fr); }
+    .timetable-grid { grid-template-columns:repeat(3,1fr); }
+    .menu-toggle { display:flex; }
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(16px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  .section.active > * { animation:fadeUp 0.4s ease both; }
+  .section.active > *:nth-child(2) { animation-delay:0.05s; }
+  .section.active > *:nth-child(3) { animation-delay:0.1s; }
+  .section.active > *:nth-child(4) { animation-delay:0.15s; }
+
+  /* CONFIRM BTN */
+  .confirm-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 14px; border-radius:8px; border:none; cursor:pointer;
+    font-size:12px; font-weight:600; font-family:'DM Sans',sans-serif;
+    transition:all 0.2s;
+  }
+  .confirm-btn.green { background:rgba(16,185,129,0.15); color:var(--accent3); }
+  .confirm-btn.green:hover { background:rgba(16,185,129,0.25); }
+  .confirm-btn.red { background:rgba(239,68,68,0.15); color:var(--accent5); }
+  .confirm-btn.red:hover { background:rgba(239,68,68,0.25); }
+
+  .section-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .full-row { margin-bottom:16px; }
+
+  .phase-num {
+    width:22px; height:22px; border-radius:50%;
+    background:var(--surface3); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; color:var(--text3); flex-shrink:0;
+  }
+
+  select, input[type=text] {
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text); border-radius:8px; padding:8px 12px;
+    font-family:'DM Sans',sans-serif; font-size:13px; outline:none;
+    transition:border-color 0.2s;
+  }
+  select:focus, input[type=text]:focus { border-color:rgba(0,168,232,0.4); }
+
+  .xp-bar-wrap { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
+  .xp-bar-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .level-badge {
+    font-family:'Syne',sans-serif; font-weight:800;
+    background:linear-gradient(135deg,var(--accent4),var(--accent5));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text; font-size:18px;
+  }
+  .xp-text { font-size:12px; color:var(--text3); }
+  .xp-fill-bg { height:8px; background:var(--surface3); border-radius:99px; overflow:hidden; }
+  .xp-fill { height:100%; background:linear-gradient(90deg,var(--accent4),var(--accent5)); border-radius:99px; transition:width 0.5s; }
+
+  .today-highlight {
+    background:linear-gradient(135deg,rgba(0,168,232,0.06),rgba(124,58,237,0.04));
+    border:1px solid rgba(0,168,232,0.2); border-radius:14px; padding:18px;
+    margin-bottom:20px;
+  }
+  .today-label { font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:10px; }
+  .today-tasks { display:flex; flex-direction:column; gap:8px; }
+  .today-task {
+    display:flex; align-items:center; gap:10px;
+    font-size:13px; color:var(--text2);
+  }
+  .today-task-icon { font-size:15px; }
+
+  .resource-list { display:flex; flex-direction:column; gap:8px; }
+  .resource-item {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px; border-radius:10px;
+    background:var(--surface2); border:1px solid var(--border);
+    text-decoration:none; color:var(--text2); font-size:13px;
+    transition:all 0.2s;
+  }
+  .resource-item:hover { border-color:rgba(0,168,232,0.3); color:var(--accent); }
+  .resource-icon { font-size:16px; }
+  .resource-arrow { margin-left:auto; opacity:0.4; }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  /* MOCK INTERVIEW */
+  .interview-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:18px 20px; transition:border-color 0.2s;
+  }
+  .interview-card.known { border-color:rgba(16,185,129,0.3); }
+  .interview-q-row { display:flex; align-items:flex-start; gap:10px; margin-bottom:4px; }
+  .interview-q-num {
+    width:24px; height:24px; border-radius:50%; flex-shrink:0;
+    background:var(--surface3); color:var(--text2); font-size:11px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; margin-top:1px;
+  }
+  .interview-card.known .interview-q-num { background:var(--accent3); color:#fff; }
+  .interview-q-text { font-size:14px; font-weight:600; line-height:1.5; flex:1; }
+  .interview-a-wrap {
+    margin-top:10px; margin-left:34px; padding:12px 14px;
+    background:var(--surface2); border-radius:10px; border:1px solid var(--border);
+    font-size:13px; color:var(--text2); line-height:1.6; display:none;
+  }
+  .interview-a-wrap.shown { display:block; animation:fadeUp 0.25s ease; }
+  .interview-btn-row { display:flex; gap:8px; margin-top:12px; margin-left:34px; flex-wrap:wrap; }
+  .interview-reveal-btn {
+    padding:6px 16px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface2); color:var(--text2); font-size:12px; cursor:pointer;
+    font-family:'DM Sans',sans-serif; transition:all 0.2s;
+  }
+  .interview-reveal-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* RELEASES */
+  .release-year-block { margin-bottom:22px; }
+  .release-year-label {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:18px;
+    color:var(--text2); margin-bottom:12px; padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+  }
+  .release-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:18px 20px; margin-bottom:12px;
+    cursor:pointer; transition:border-color 0.2s;
+  }
+  .release-card:hover { border-color:rgba(0,168,232,0.3); }
+  .release-card-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  .release-name { font-family:'Syne',sans-serif; font-weight:700; font-size:15px; display:flex; align-items:center; gap:8px; }
+  .release-date { font-size:11px; color:var(--text3); margin-top:2px; }
+  .release-current-badge {
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
+    background:linear-gradient(135deg,var(--accent3),#059669); color:#fff;
+    padding:3px 10px; border-radius:20px;
+  }
+  .release-theme { font-size:12.5px; color:var(--text2); margin-top:8px; line-height:1.5; }
+  .release-highlights { display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+  .release-highlights.open { display:block; }
+  .release-highlights ul { list-style:none; display:flex; flex-direction:column; gap:7px; }
+  .release-highlights li { font-size:12.5px; color:var(--text2); line-height:1.5; padding-left:16px; position:relative; }
+  .release-highlights li::before { content:'→'; position:absolute; left:0; color:var(--accent); }
+  .release-link {
+    display:inline-flex; align-items:center; gap:5px; margin-top:12px;
+    font-size:11px; color:var(--accent); text-decoration:none; font-weight:600;
+  }
+  .release-chevron { font-size:12px; color:var(--text3); transition:transform 0.2s; }
+  .release-chevron.open { transform:rotate(180deg); }
+
+  /* DAILY TIP */
+  .tip-hero {
+    background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(0,168,232,0.06));
+    border:1px solid rgba(245,158,11,0.3); border-radius:16px; padding:22px;
+  }
+  .tip-hero-label { font-size:11px; color:var(--accent4); text-transform:uppercase; letter-spacing:1.5px; font-weight:700; margin-bottom:10px; }
+  .tip-hero-category {
+    display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase;
+    padding:3px 10px; border-radius:20px; background:rgba(0,168,232,0.15); color:var(--accent);
+    margin-bottom:10px;
+  }
+  .tip-hero-title { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; margin-bottom:8px; }
+  .tip-hero-body { font-size:13.5px; color:var(--text2); line-height:1.6; }
+  .tip-archive-item {
+    background:var(--surface2); border:1px solid var(--border); border-radius:10px;
+    padding:13px 15px; transition:border-color 0.2s;
+  }
+  .tip-archive-item:hover { border-color:rgba(0,168,232,0.25); }
+  .tip-archive-header { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+  .tip-cat-chip {
+    font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
+    padding:2px 8px; border-radius:20px; background:var(--surface3); color:var(--text2);
+  }
+  .tip-archive-title { font-size:13px; font-weight:600; }
+  .tip-archive-body { font-size:12.5px; color:var(--text3); line-height:1.55; }
+  .tip-filter-chip {
+    font-size:11px; padding:5px 12px; border-radius:20px; cursor:pointer;
+    background:var(--surface2); border:1px solid var(--border); color:var(--text2);
+    transition:all 0.2s; font-family:'DM Sans',sans-serif;
+  }
+  .tip-filter-chip.active { background:rgba(0,168,232,0.15); border-color:rgba(0,168,232,0.4); color:var(--accent); }
+
+  /* ===== INTERVIEW CARDS ===== */
+  .interview-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:16px; transition:border-color 0.2s;
+  }
+  .interview-card.practiced { border-color:rgba(16,185,129,0.35); background:rgba(16,185,129,0.04); }
+  .interview-q-row { display:flex; align-items:flex-start; gap:10px; }
+  .interview-q-num {
+    flex-shrink:0; font-family:'Syne',sans-serif; font-weight:800; font-size:11px;
+    color:var(--accent); background:rgba(0,168,232,0.1); border-radius:6px;
+    padding:3px 8px; margin-top:1px; white-space:nowrap;
+  }
+  .interview-q-text { flex:1; font-size:14px; font-weight:500; line-height:1.5; }
+  .interview-got-it {
+    flex-shrink:0; font-size:10px; font-weight:700; color:var(--accent3);
+    background:rgba(16,185,129,0.12); padding:3px 9px; border-radius:20px; white-space:nowrap;
+  }
+  .interview-answer-wrap {
+    margin-top:12px; padding:12px 14px; border-radius:10px;
+    background:var(--surface2); border-left:3px solid var(--accent);
+  }
+  .interview-answer-text { font-size:13px; color:var(--text2); line-height:1.65; }
+  .interview-card-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .interview-btn {
+    padding:6px 14px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface2); color:var(--text2); font-size:12px; cursor:pointer;
+    font-family:'DM Sans',sans-serif; transition:all 0.2s;
+  }
+  .interview-btn.reveal:hover { border-color:var(--accent); color:var(--accent); }
+  .interview-btn.gotit { border-color:rgba(16,185,129,0.3); color:var(--accent3); }
+  .interview-btn.gotit:hover { background:rgba(16,185,129,0.12); }
+  .interview-btn.undo { border-color:rgba(245,158,11,0.3); color:var(--accent4); }
+  .interview-btn.undo:hover { background:rgba(245,158,11,0.12); }
+
+  /* ===== RELEASE TIMELINE ===== */
+  .release-year-group { margin-bottom:26px; }
+  .release-year-label {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:22px;
+    color:var(--text3); margin-bottom:12px; padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+  }
+  .release-year-items { display:flex; flex-direction:column; gap:14px; }
+  .release-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:18px 20px;
+  }
+  .release-card-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+  .release-name-row { display:flex; align-items:center; gap:10px; }
+  .release-name { font-family:'Syne',sans-serif; font-weight:800; font-size:17px; }
+  .release-current-badge {
+    font-size:10px; font-weight:700; color:#fff; letter-spacing:0.5px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    padding:3px 10px; border-radius:20px; text-transform:uppercase;
+  }
+  .release-date { font-size:12px; color:var(--text3); }
+  .release-theme { font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:12px; font-style:italic; }
+  .release-highlights { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+  .release-highlight-item { font-size:13px; color:var(--text2); line-height:1.55; display:flex; gap:8px; }
+  .release-highlight-dot { color:var(--accent); flex-shrink:0; }
+  .release-link { font-size:12px; color:var(--accent); text-decoration:none; font-weight:600; }
+  .release-link:hover { opacity:0.8; }
+
+  /* ===== DAILY TIP ===== */
+  .tip-hero {
+    background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.05));
+    border:1px solid rgba(245,158,11,0.25); border-radius:14px; padding:20px; margin-top:4px;
+  }
+  .tip-hero-cat {
+    display:inline-block; font-size:10px; font-weight:700; letter-spacing:0.5px;
+    text-transform:uppercase; color:var(--accent4); background:rgba(245,158,11,0.15);
+    padding:3px 10px; border-radius:20px; margin-bottom:10px;
+  }
+  .tip-hero-title { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; margin-bottom:8px; }
+  .tip-hero-body { font-size:13.5px; color:var(--text2); line-height:1.65; margin-bottom:16px; }
+  .tip-cat-pill {
+    padding:5px 13px; border-radius:20px; border:1px solid var(--border);
+    background:var(--surface2); color:var(--text2); font-size:12px; cursor:pointer;
+    font-family:'DM Sans',sans-serif; transition:all 0.2s;
+  }
+  .tip-cat-pill.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); border-color:transparent; color:#fff; }
+  .tip-archive-item {
+    display:flex; align-items:flex-start; gap:12px; padding:12px 14px;
+    border-radius:10px; background:var(--surface2); border:1px solid var(--border);
+    cursor:pointer; transition:all 0.2s;
+  }
+  .tip-archive-item:hover { border-color:rgba(0,168,232,0.3); }
+  .tip-archive-item.read { opacity:0.55; }
+  .tip-archive-check {
+    width:18px; height:18px; border-radius:5px; border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    font-size:11px; margin-top:2px; transition:all 0.2s;
+  }
+  .tip-archive-item.read .tip-archive-check { background:var(--accent3); border-color:var(--accent3); color:#fff; }
+  .tip-archive-title { font-size:13px; font-weight:600; margin-bottom:3px; }
+  .tip-archive-body { font-size:12px; color:var(--text3); line-height:1.5; }
+  .tip-archive-cat {
+    flex-shrink:0; font-size:10px; font-weight:600; color:var(--text3);
+    background:var(--surface3); padding:3px 9px; border-radius:20px; white-space:nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">⚡ SF Learning Hub</div>
+      <div class="logo-sub">Your Salesforce Mastery Path</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <div class="nav-item active" onclick="showSection('dashboard')">
+        <span class="nav-icon">🏠</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showSection('roadmap')">
+        <span class="nav-icon">🗺️</span> Roadmap
+      </div>
+      <div class="nav-item" onclick="showSection('timetable')">
+        <span class="nav-icon">📅</span> Weekly Plan
+      </div>
+
+      <div class="nav-section-label" style="margin-top:12px">Learning</div>
+      <div class="nav-item" onclick="showSection('modules')">
+        <span class="nav-icon">📚</span> Modules
+      </div>
+      <div class="nav-item" onclick="showSection('topics')">
+        <span class="nav-icon">✅</span> Topic Tracker
+      </div>
+      <div class="nav-item" onclick="showSection('resources')">
+        <span class="nav-icon">🔗</span> Resources
+      </div>
+      <div class="nav-item" onclick="showSection('interview')">
+        <span class="nav-icon">🎤</span> Mock Interview
+      </div>
+
+      <div class="nav-section-label" style="margin-top:12px">Progress</div>
+      <div class="nav-item" onclick="showSection('progress')">
+        <span class="nav-icon">📊</span> Progress
+      </div>
+      <div class="nav-item" onclick="showSection('badges')">
+        <span class="nav-icon">🏆</span> Badges
+      </div>
+      <div class="nav-item" onclick="showSection('notes')">
+        <span class="nav-icon">📝</span> My Notes
+      </div>
+
+      <div class="nav-section-label" style="margin-top:12px">Updates</div>
+      <div class="nav-item" onclick="showSection('releases')">
+        <span class="nav-icon">🆕</span> Release Updates
+      </div>
+      <div class="nav-item" onclick="showSection('dailytip')">
+        <span class="nav-icon">💡</span> Daily Tip
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="streak-pill">
+        <div class="streak-fire">🔥</div>
+        <div>
+          <div class="streak-num" id="streakCount">0</div>
+          <div class="streak-label">Day Streak</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</div>
+        <div class="page-title" id="pageTitle"><span>Dashboard</span></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="markTodayDone()">✓ Mark Today Done</button>
+        <button class="btn btn-primary" onclick="showSection('topics')">Continue Learning →</button>
+      </div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <section class="section active" id="sec-dashboard">
+      <div class="quote-box">
+        <div class="quote-text" id="quoteText">"The secret of getting ahead is getting started. You don't need perfect conditions — just start today."</div>
+        <div class="quote-attr">Daily motivation</div>
+      </div>
+
+      <div class="xp-bar-wrap">
+        <div class="xp-bar-top">
+          <div><div class="level-badge" id="levelBadge">Level 1 — Trailhead Rookie</div></div>
+          <div class="xp-text"><span id="xpCurrent">0</span> / <span id="xpNext">500</span> XP</div>
+        </div>
+        <div class="xp-fill-bg"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="stat-card blue">
+          <div class="stat-value" id="statTopics">0</div>
+          <div class="stat-label">Topics Completed</div>
+          <div class="stat-sub"><span class="stat-badge badge-up" id="statTopicsPct">0%</span> of total curriculum</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-value" id="statDays">0</div>
+          <div class="stat-label">Days Studied</div>
+          <div class="stat-sub"><span class="stat-badge badge-warn" id="statDaysEst">~18 mo plan</span></div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-value" id="statModules">0</div>
+          <div class="stat-label">Modules Done</div>
+          <div class="stat-sub"><span class="stat-badge badge-up" id="statModulesPct">of 9</span> modules</div>
+        </div>
+      </div>
+
+      <div class="today-highlight">
+        <div class="today-label">📌 Today's Focus</div>
+        <div class="today-tasks" id="todayFocus">
+          <div class="today-task"><span class="today-task-icon">📖</span> Loading today's plan...</div>
+        </div>
+      </div>
+
+      <div class="section-row">
+        <div class="card">
+          <div class="card-title">Overall Progress</div>
+          <div id="dashProgressBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">⏱️ Study Timer</div>
+          <div class="study-timer" style="background:transparent;border:none;padding:0;">
+            <div class="timer-label">Focus Session</div>
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div id="timerSessionLabel" style="font-size:11px;color:var(--text3);margin-bottom:4px;">Pomodoro Mode</div>
+            <div class="timer-btns">
+              <button class="timer-btn" id="timerStartBtn" onclick="toggleTimer()">▶ Start</button>
+              <button class="timer-btn" onclick="resetTimer()">↺ Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📆 Activity Heatmap (Last 90 Days)</div>
+        <div class="heatmap" id="heatmap" style="margin-top:4px"></div>
+        <div class="heatmap-legend">
+          Less <div class="heat-cell heat-0"></div><div class="heat-cell heat-1"></div><div class="heat-cell heat-2"></div><div class="heat-cell heat-3"></div><div class="heat-cell heat-4"></div> More
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ROADMAP ===== -->
+    <section class="section" id="sec-roadmap">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Learning Roadmap — 18-Month Plan</div>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:20px;">Based on 1 hr/weekday (theory) + 4-6 hrs/weekend (hands-on coding). Total: ~350-400 hours.</p>
+        <div class="phase-timeline" id="roadmapTimeline"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🕐 Time Estimate Breakdown</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px" id="timeBreakdown"></div>
+      </div>
+    </section>
+
+    <!-- ===== TIMETABLE ===== -->
+    <section class="section" id="sec-timetable">
+      <div class="card full-row">
+        <div class="card-title">Weekly Study Schedule</div>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:20px;">Weekdays = 1 hr theory. Weekends = 3-4 hrs coding & projects. Adaptive by phase.</p>
+        <div class="timetable-grid" id="timetableGrid"></div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">📋 Weekday Template</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)">
+            <div>🌅 <strong>First 15 min</strong> — Review yesterday's notes</div>
+            <div>📖 <strong>Next 35 min</strong> — New theory / Trailhead unit</div>
+            <div>✍️ <strong>Last 10 min</strong> — Write 3 key takeaways in notes</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">💻 Weekend Template</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text2)">
+            <div>🔁 <strong>30 min</strong> — Week recap & quiz yourself</div>
+            <div>⚡ <strong>2 hrs</strong> — Hands-on coding / Dev org</div>
+            <div>🏗️ <strong>1 hr</strong> — Mini project / challenge</div>
+            <div>📊 <strong>30 min</strong> — Update tracker & plan next week</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MODULES ===== -->
+    <section class="section" id="sec-modules">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Click any module to view its topics. Complete topics to unlock the next module.</p>
+      <div class="modules-grid" id="modulesGrid"></div>
+    </section>
+
+    <!-- ===== TOPIC TRACKER ===== -->
+    <section class="section" id="sec-topics">
+      <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+        <select id="moduleFilter" onchange="renderTopics()">
+          <option value="all">All Modules</option>
+        </select>
+        <select id="typeFilter" onchange="renderTopics()">
+          <option value="all">All Types</option>
+          <option value="theory">Theory Only</option>
+          <option value="coding">Coding Only</option>
+        </select>
+        <select id="statusFilter" onchange="renderTopics()">
+          <option value="all">All Status</option>
+          <option value="todo">To Do</option>
+          <option value="done">Done</option>
+        </select>
+        <div style="margin-left:auto;font-size:12px;color:var(--text3)" id="topicsFilterCount"></div>
+      </div>
+      <div class="topic-list" id="topicsList"></div>
+    </section>
+
+    <!-- ===== RESOURCES ===== -->
+    <section class="section" id="sec-resources">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(this,'res-official')">Official</button>
+        <button class="tab-btn" onclick="switchTab(this,'res-practice')">Practice</button>
+        <button class="tab-btn" onclick="switchTab(this,'res-community')">Community</button>
+        <button class="tab-btn" onclick="switchTab(this,'res-tips')">Tips</button>
+      </div>
+      <div class="tab-content active" id="res-official">
+        <div class="resource-list" id="resourcesOfficial"></div>
+      </div>
+      <div class="tab-content" id="res-practice">
+        <div class="resource-list" id="resourcesPractice"></div>
+      </div>
+      <div class="tab-content" id="res-community">
+        <div class="resource-list" id="resourcesCommunity"></div>
+      </div>
+      <div class="tab-content" id="res-tips">
+        <div class="card" id="tipsList"></div>
+      </div>
+    </section>
+
+    <!-- ===== MOCK INTERVIEW ===== -->
+    <section class="section" id="sec-interview">
+      <div class="card full-row">
+        <div class="card-title">🎤 Practice Interview Questions</div>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Pick a module, read the question, think through your answer out loud, then reveal to check yourself. Be honest about "Got it" vs "Review Again" — that's what makes this useful.</p>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+          <select id="interviewModuleSelect" onchange="renderInterview()"></select>
+          <div style="font-size:12px;color:var(--text3)" id="interviewProgressText"></div>
+          <button class="btn btn-ghost" style="margin-left:auto" onclick="resetInterviewModule()">↺ Reset Module</button>
+        </div>
+      </div>
+      <div id="interviewCardList" style="margin-top:16px;display:flex;flex-direction:column;gap:12px"></div>
+    </section>
+
+    <!-- ===== PROGRESS ===== -->
+    <section class="section" id="sec-progress">
+      <div class="section-row">
+        <div class="card">
+          <div class="card-title">Module Progress</div>
+          <div id="progressModuleBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Weekly Study Log</div>
+          <div id="weeklyLog"></div>
+          <button class="btn btn-ghost" onclick="markTodayDone()" style="width:100%;margin-top:12px;font-size:13px">+ Log Today's Study</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📅 Activity Calendar</div>
+        <div class="heatmap" id="heatmap2"></div>
+      </div>
+    </section>
+
+    <!-- ===== BADGES ===== -->
+    <section class="section" id="sec-badges">
+      <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Earn badges by completing milestones. Keep going! 🏆</p>
+      <div class="badge-grid" id="badgeGrid"></div>
+    </section>
+
+    <!-- ===== NOTES ===== -->
+    <section class="section" id="sec-notes">
+      <div class="card">
+        <div class="card-title">Module Notes</div>
+        <div style="display:flex;gap:10px;margin-bottom:12px">
+          <select id="notesModuleSelect" onchange="loadNote()"></select>
+          <button class="btn btn-ghost" onclick="clearNote()">Clear</button>
+          <button class="btn btn-primary" onclick="saveNote()">💾 Save</button>
+        </div>
+        <textarea class="notes-area" id="notesArea" placeholder="Write your notes, key concepts, code snippets...&#10;&#10;Tip: Explain concepts in your own words — it's the best way to remember them!"></textarea>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;display:flex;justify-content:space-between">
+          <span>Notes are auto-saved locally</span>
+          <span id="notesSaveStatus"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RELEASE UPDATES ===== -->
+    <section class="section" id="sec-releases">
+      <div class="card full-row">
+        <div class="card-title">🆕 Salesforce Release Notes — Year by Year</div>
+        <p style="font-size:13px;color:var(--text3)">Salesforce ships three major releases a year (Spring, Summer, Winter). Skimming these each season keeps your knowledge current — it's also a favorite interview question.</p>
+      </div>
+      <div id="releasesTimeline"></div>
+    </section>
+
+    <!-- ===== DAILY TIP ===== -->
+    <section class="section" id="sec-dailytip">
+      <div class="card full-row" id="todayTipCard"></div>
+      <div class="card">
+        <div class="card-title">📚 All Tips</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="tipCategoryFilters"></div>
+        <div id="tipArchiveList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- MODULE MODAL -->
+<div class="modal-overlay" id="moduleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">Module Name</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px" id="modalMeta"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const MODULES = [
+  {
+    id:'admin', name:'Salesforce Admin Basics', icon:'⚙️', color:'#00a8e8',
+    weeks:'Weeks 1-4', hours:32,
+    trailhead:'https://trailhead.salesforce.com/users/strailhead/trailmixes/prepare-for-your-salesforce-administrator-credential',
+    desc:'Core platform, orgs, objects, fields, profiles, permission sets, flows, reports.',
+    topics:[
+      {id:'a1', name:'Salesforce Platform Overview & Architecture', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/starting_force_com'},
+      {id:'a2', name:'Orgs, Sandboxes & Environments', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/starting_force_com/starting_understanding_arch'},
+      {id:'a3', name:'Standard & Custom Objects', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/data_modeling'},
+      {id:'a4', name:'Fields, Relationships & Schema Builder', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/data_modeling/schema_builder'},
+      {id:'a5', name:'Profiles, Roles & Permission Sets', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/data_security'},
+      {id:'a6', name:'Record Types & Page Layouts', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lex_customization'},
+      {id:'a7', name:'Flows — Screen, Auto-Launch, Scheduled', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/flow-basics'},
+      {id:'a8', name:'Validation Rules & Formula Fields', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/point_click_business_logic'},
+      {id:'a9', name:'Reports & Dashboards', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/reports_dashboards'},
+      {id:'a10', name:'Data Management: Import, Export, Data Loader', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lex_migration_introduction/lex_migration_introduction_data'},
+      {id:'a11', name:'Process Builder & Workflow (Legacy Awareness)', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/business_process_automation'},
+      {id:'a12', name:'Email Templates & Alerts', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lex_implementation_basics'},
+    ]
+  },
+  {
+    id:'apex', name:'Apex Programming', icon:'💻', color:'#7c3aed',
+    weeks:'Weeks 5-9', hours:48,
+    trailhead:'https://trailhead.salesforce.com/content/learn/modules/apex_database',
+    desc:'Apex syntax, triggers, async Apex, SOQL, testing, governor limits.',
+    topics:[
+      {id:'ap1', name:'Apex Syntax & Data Types', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_database/apex_database_intro'},
+      {id:'ap2', name:'sObjects & DML Operations', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_database/apex_database_dml'},
+      {id:'ap3', name:'SOQL & SOSL Fundamentals', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_database/apex_database_soql'},
+      {id:'ap4', name:'Collections: Lists, Sets, Maps', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_database/apex_database_collections'},
+      {id:'ap5', name:'Apex Classes & OOP', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_database/apex_database_classes'},
+      {id:'ap6', name:'Apex Triggers (Before/After)', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_triggers/apex_triggers_intro'},
+      {id:'ap7', name:'Trigger Handler Pattern', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_triggers/apex_triggers_bulk'},
+      {id:'ap8', name:'Asynchronous Apex: Future, Batch, Queueable', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/asynchronous_apex'},
+      {id:'ap9', name:'Scheduled Apex', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/asynchronous_apex/async_apex_scheduled'},
+      {id:'ap10', name:'Governor Limits & Bulkification', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_database/apex_database_governors'},
+      {id:'ap11', name:'Apex Test Classes & Code Coverage', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_testing'},
+      {id:'ap12', name:'Error Handling & Custom Exceptions', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_database/apex_database_exceptions'},
+    ]
+  },
+  {
+    id:'lwc', name:'Lightning Web Components', icon:'⚡', color:'#10b981',
+    weeks:'Weeks 10-14', hours:48,
+    trailhead:'https://trailhead.salesforce.com/content/learn/projects/quick-start-lightning-web-components',
+    desc:'LWC fundamentals, lifecycle, wire, events, communication patterns.',
+    topics:[
+      {id:'l1', name:'LWC vs Aura: What Changed & Why', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lwc-and-aura-components-comparison'},
+      {id:'l2', name:'HTML Template & Data Binding', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lightning-web-components-basics/create-lightning-web-components'},
+      {id:'l3', name:'JS Controller & Decorators (@api, @track, @wire)', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lightning-web-components-basics/handle-events-in-lightning-web-components'},
+      {id:'l4', name:'Component Lifecycle Hooks', type:'coding',
+       url:'https://developer.salesforce.com/docs/platform/lwc/guide/reference-lifecycle-hooks.html'},
+      {id:'l5', name:'Wire Service & Apex Integration', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lightning-web-components-basics/use-apex-in-an-lwc'},
+      {id:'l6', name:'Custom Events & Event Handling', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lightning-web-components-basics/handle-events-in-lightning-web-components'},
+      {id:'l7', name:'Parent-Child Communication', type:'coding',
+       url:'https://developer.salesforce.com/docs/platform/lwc/guide/events-parent-to-child.html'},
+      {id:'l8', name:'Lightning Data Service (LDS)', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lightning-data-service'},
+      {id:'l9', name:'Navigation & Routing', type:'coding',
+       url:'https://developer.salesforce.com/docs/platform/lwc/guide/use-navigation-page-reference-definitions.html'},
+      {id:'l10', name:'SLDS (Salesforce Lightning Design System)', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/lightning-design-system-basics'},
+      {id:'l11', name:'LWC in Experience Cloud', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/experience-cloud-basics'},
+      {id:'l12', name:'Base Lightning Components Library', type:'coding',
+       url:'https://developer.salesforce.com/docs/component-library/overview/components'},
+    ]
+  },
+  {
+    id:'api', name:'Salesforce APIs', icon:'🔌', color:'#f59e0b',
+    weeks:'Weeks 15-17', hours:28,
+    trailhead:'https://trailhead.salesforce.com/content/learn/modules/api_basics',
+    desc:'REST, SOAP, Bulk, Streaming, Metadata APIs & integration patterns.',
+    topics:[
+      {id:'api1', name:'REST API: Authentication & Resources', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/api_basics/api_basics_rest'},
+      {id:'api2', name:'SOAP API Basics', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/api_basics/api_basics_soap'},
+      {id:'api3', name:'Bulk API 2.0 for Mass Operations', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/api_basics/api_basics_bulk'},
+      {id:'api4', name:'Streaming API & Platform Events', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/platform_events_basics'},
+      {id:'api5', name:'Metadata API & Tooling API', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/api_basics/api_basics_metadata'},
+      {id:'api6', name:'OAuth 2.0 Flows & Connected Apps', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/connected-app-basics'},
+      {id:'api7', name:'Named Credentials & Auth Providers', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_integration_services/apex_integration_callouts'},
+      {id:'api8', name:'Callouts from Apex (HTTP + REST)', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/apex_integration_services'},
+      {id:'api9', name:'Integration Patterns (Sync, Async, MuleSoft)', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/mulesoft-basics'},
+    ]
+  },
+  {
+    id:'experience', name:'Experience Cloud', icon:'🌐', color:'#06b6d4',
+    weeks:'Weeks 18-21', hours:36,
+    trailhead:'https://trailhead.salesforce.com/content/learn/modules/experience-cloud-basics',
+    desc:'Digital experiences, communities, site builder, guest users, sharing.',
+    topics:[
+      {id:'ec1', name:'Experience Cloud Overview & Use Cases', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/experience-cloud-basics'},
+      {id:'ec2', name:'Community Templates (LWR, Aura, Micro)', type:'theory',
+       url:'https://help.salesforce.com/s/articleView?id=sf.networks_overview.htm&type=5'},
+      {id:'ec3', name:'Experience Builder & Themes', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/experience-cloud-customization'},
+      {id:'ec4', name:'Guest User Permissions & Security', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/experience-cloud-security'},
+      {id:'ec5', name:'Member Management & Digital Experiences', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/experience-cloud-basics/get-started-with-experience-cloud'},
+      {id:'ec6', name:'LWC Components in Experience Cloud', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/projects/build-an-experience-cloud-site'},
+      {id:'ec7', name:'Sharing Rules & Record Visibility', type:'theory',
+       url:'https://help.salesforce.com/s/articleView?id=sf.networks_setting_light_users.htm&type=5'},
+      {id:'ec8', name:'Flows & Surveys in Experience Cloud', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/surveys-and-feedback'},
+      {id:'ec9', name:'Custom Branding & CSS Overrides', type:'coding',
+       url:'https://developer.salesforce.com/docs/atlas.en-us.exp_cloud_lwr_dev.meta/exp_cloud_lwr_dev/lwr_dev_overview.htm'},
+    ]
+  },
+  {
+    id:'datacloud', name:'Data Cloud', icon:'☁️', color:'#8b5cf6',
+    weeks:'Weeks 22-25', hours:32,
+    trailhead:'https://trailhead.salesforce.com/content/learn/modules/salesforce-data-cloud-basics',
+    desc:'Unified data platform: ingestion, data model, identity resolution, activation.',
+    topics:[
+      {id:'dc1', name:'Data Cloud Architecture Overview', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/salesforce-data-cloud-basics'},
+      {id:'dc2', name:'Data Streams & Connectors', type:'theory',
+       url:'https://help.salesforce.com/s/articleView?id=sf.c360_a_connect_an_org.htm&type=5'},
+      {id:'dc3', name:'Data Model: Data Lake Objects & DMOs', type:'theory',
+       url:'https://help.salesforce.com/s/articleView?id=sf.c360_a_data_model.htm&type=5'},
+      {id:'dc4', name:'Identity Resolution & Unification', type:'theory',
+       url:'https://help.salesforce.com/s/articleView?id=sf.c360_a_identity_resolution.htm&type=5'},
+      {id:'dc5', name:'Segments & Activation Targets', type:'both',
+       url:'https://help.salesforce.com/s/articleView?id=sf.c360_a_segments.htm&type=5'},
+      {id:'dc6', name:'Calculated Insights & Analytics', type:'both',
+       url:'https://help.salesforce.com/s/articleView?id=sf.c360_a_calculated_insights.htm&type=5'},
+      {id:'dc7', name:'Data Cloud Ingestion API', type:'coding',
+       url:'https://developer.salesforce.com/docs/atlas.en-us.c360a_api.meta/c360a_api/c360a_api_overview.htm'},
+      {id:'dc8', name:'Data Cloud + Marketing Cloud Integration', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/salesforce-data-cloud-for-marketers'},
+    ]
+  },
+  {
+    id:'marketing', name:'Marketing Cloud', icon:'📣', color:'#ec4899',
+    weeks:'Weeks 26-30', hours:40,
+    trailhead:'https://trailhead.salesforce.com/users/strailhead/trailmixes/prepare-for-your-marketing-cloud-email-specialist-credential',
+    desc:'SFMC basics, Email Studio, Journey Builder, Automation Studio, AMPscript.',
+    topics:[
+      {id:'mc1', name:'SFMC Architecture & Business Units', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/marketing-cloud-basics'},
+      {id:'mc2', name:'Email Studio & Content Builder', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/email-studio-basics'},
+      {id:'mc3', name:'Journey Builder: Entry Sources & Activities', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/journey-builder-basics'},
+      {id:'mc4', name:'Automation Studio', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/marketing-cloud-automation-studio-basics'},
+      {id:'mc5', name:'Contact Builder & Data Extensions', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/marketing-cloud-data-management'},
+      {id:'mc6', name:'AMPscript Fundamentals', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/ampscript-basics'},
+      {id:'mc7', name:'Mobile Studio: SMS & Push Basics', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/mobile-studio-basics'},
+      {id:'mc8', name:'Marketing Cloud Social & Advertising', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/marketing-cloud-basics'},
+      {id:'mc9', name:'Marketing Cloud REST API', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/marketing-cloud-apis-and-permissions'},
+      {id:'mc10', name:'Marketing Cloud + Salesforce CRM Connect', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/marketing-cloud-connect'},
+    ]
+  },
+  {
+    id:'service', name:'Service Cloud', icon:'🎧', color:'#14b8a6',
+    weeks:'Weeks 31-33', hours:28,
+    trailhead:'https://trailhead.salesforce.com/users/strailhead/trailmixes/prepare-for-your-salesforce-service-cloud-consultant-credential',
+    desc:'Cases, Omni-Channel, Entitlements, Knowledge, Service Console.',
+    topics:[
+      {id:'sc1', name:'Case Management & Escalation Rules', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/service-cloud-basics'},
+      {id:'sc2', name:'Service Console & Macros', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/service_console'},
+      {id:'sc3', name:'Omni-Channel Routing & Presence', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/omni-channel-basics'},
+      {id:'sc4', name:'Knowledge Base & Articles', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/knowledge_basics'},
+      {id:'sc5', name:'Entitlements & SLA Milestones', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/entitlements_and_milestones'},
+      {id:'sc6', name:'Einstein Bots & Salesforce Chat', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/einstein-bots-basics'},
+      {id:'sc7', name:'Field Service Lightning Overview', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/field-service-basics'},
+    ]
+  },
+  {
+    id:'advanced', name:'Advanced & Certs', icon:'🎓', color:'#f97316',
+    weeks:'Weeks 34-36+', hours:36,
+    trailhead:'https://trailhead.salesforce.com/users/strailhead/trailmixes/prepare-for-your-salesforce-platform-developer-i-credential',
+    desc:'Deployment, DevOps, AI, architect concepts & certification preparation.',
+    topics:[
+      {id:'adv1', name:'Change Sets & Deployment Best Practices', type:'both',
+       url:'https://trailhead.salesforce.com/content/learn/modules/declarative-change-set-development'},
+      {id:'adv2', name:'Salesforce DX & SFDX CLI', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/projects/quick-start-salesforce-dx'},
+      {id:'adv3', name:'Git & Source-Driven Development', type:'coding',
+       url:'https://trailhead.salesforce.com/content/learn/modules/git-and-git-hub-basics'},
+      {id:'adv4', name:'Einstein AI & Agentforce Overview', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/get_smart_einstein'},
+      {id:'adv5', name:'Governor Limits Deep Dive', type:'theory',
+       url:'https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_gov_limits.htm'},
+      {id:'adv6', name:'Salesforce Security & Shield Basics', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/security_basics'},
+      {id:'adv7', name:'Integration Architecture: Multi-Org & Patterns', type:'theory',
+       url:'https://trailhead.salesforce.com/content/learn/modules/integration-architecture-for-the-salesforce-platform'},
+      {id:'adv8', name:'Admin Certification Prep (ADM-201)', type:'theory',
+       url:'https://trailhead.salesforce.com/users/strailhead/trailmixes/prepare-for-your-salesforce-administrator-credential'},
+      {id:'adv9', name:'Platform Developer I Cert Prep (PD1)', type:'both',
+       url:'https://trailhead.salesforce.com/users/strailhead/trailmixes/prepare-for-your-salesforce-platform-developer-i-credential'},
+    ]
+  }
+];
+const PHASES = [
+  { name:'Phase 1: Foundation', duration:'Months 1-3', status:'active', desc:'Admin basics, Apex fundamentals. Build your Salesforce muscle memory with orgs, objects, flows, and your first Apex classes.', topics:['Admin Basics','Apex Syntax','SOQL','Triggers'] },
+  { name:'Phase 2: Frontend Power', duration:'Months 4-6', status:'todo', desc:'Master Lightning Web Components. Build interactive UIs that talk to Apex and Salesforce data.', topics:['LWC','Wire Service','Custom Events','SLDS'] },
+  { name:'Phase 3: Integration & APIs', duration:'Months 7-9', status:'todo', desc:'Connect Salesforce to the world with REST/SOAP APIs, Platform Events, and OAuth flows.', topics:['REST API','Bulk API','Streaming','Named Credentials'] },
+  { name:'Phase 4: Clouds Deep Dive', duration:'Months 10-14', status:'todo', desc:'Experience Cloud, Data Cloud, Marketing Cloud, and Service Cloud — each product explored in depth.', topics:['Experience Cloud','Data Cloud','Marketing Cloud','Service Cloud'] },
+  { name:'Phase 5: Mastery & Certs', duration:'Months 15-18', status:'todo', desc:'DevOps, Salesforce DX, AI features, architectural patterns, and exam preparation for Admin + PD1.', topics:['SFDX','DevOps','Einstein AI','Cert Prep'] },
+];
+
+const BADGES = [
+  { id:'first_topic', emoji:'🌱', name:'First Step', desc:'Complete your first topic', condition: s => s.totalDone >= 1 },
+  { id:'week1', emoji:'📅', name:'Week Warrior', desc:'Study 7 days total', condition: s => s.totalDays >= 7 },
+  { id:'apex_done', emoji:'💻', name:'Apex Coder', desc:'Complete all Apex topics', condition: s => s.moduleDone['apex'] >= 12 },
+  { id:'lwc_done', emoji:'⚡', name:'LWC Wizard', desc:'Complete all LWC topics', condition: s => s.moduleDone['lwc'] >= 12 },
+  { id:'halfway', emoji:'🏔️', name:'Halfway Hero', desc:'50% total curriculum done', condition: s => s.pct >= 50 },
+  { id:'streak7', emoji:'🔥', name:'Streak Master', desc:'7-day study streak', condition: s => s.streak >= 7 },
+  { id:'streak30', emoji:'⚡🔥', name:'30-Day Flame', desc:'30-day study streak', condition: s => s.streak >= 30 },
+  { id:'admin_done', emoji:'⚙️', name:'Admin Pro', desc:'Complete Admin module', condition: s => s.moduleDone['admin'] >= 12 },
+  { id:'all_theory', emoji:'📚', name:'Scholar', desc:'Complete 50 theory topics', condition: s => s.theoryDone >= 50 },
+  { id:'all_coding', emoji:'🖥️', name:'Code Ninja', desc:'Complete 30 coding topics', condition: s => s.codingDone >= 30 },
+  { id:'complete', emoji:'🎓', name:'Salesforce Master', desc:'Complete entire curriculum', condition: s => s.pct >= 100 },
+  { id:'notes_writer', emoji:'📝', name:'Note Taker', desc:'Write notes for 5 modules', condition: s => s.noteCount >= 5 },
+  { id:'interview_warmup', emoji:'🎤', name:'Interview Warm-Up', desc:'Practice 10 interview questions', condition: s => s.interviewCount >= 10 },
+  { id:'interview_ready', emoji:'💼', name:'Interview Ready', desc:'Practice 40 interview questions', condition: s => s.interviewCount >= 40 },
+  { id:'tip_reader', emoji:'📰', name:'Tip Collector', desc:'Read 10 daily tips', condition: s => s.tipsReadCount >= 10 },
+  { id:'tip_master', emoji:'🗞️', name:'Release Radar', desc:'Read 25 daily tips', condition: s => s.tipsReadCount >= 25 },
+];
+
+const RESOURCES_OFFICIAL = [
+  { icon:'🛤️', name:'Trailhead — Official SF Learning', url:'https://trailhead.salesforce.com', desc:'Free, gamified Salesforce learning' },
+  { icon:'📖', name:'Apex Developer Guide', url:'https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/', desc:'Official Apex documentation' },
+  { icon:'⚡', name:'LWC Developer Guide', url:'https://developer.salesforce.com/docs/component-library/overview/components', desc:'Lightning Web Components reference' },
+  { icon:'🔌', name:'Salesforce APIs Reference', url:'https://developer.salesforce.com/docs/apis', desc:'REST, SOAP, Bulk, Streaming APIs' },
+  { icon:'🌐', name:'Experience Cloud Help', url:'https://help.salesforce.com/s/articleView?id=sf.networks_overview.htm', desc:'Official Experience Cloud docs' },
+  { icon:'☁️', name:'Data Cloud Docs', url:'https://help.salesforce.com/s/articleView?id=sf.c360_a_customer_data_platform.htm', desc:'Salesforce Data Cloud documentation' },
+];
+const RESOURCES_PRACTICE = [
+  { icon:'🔧', name:'Salesforce Developer Org (Free)', url:'https://developer.salesforce.com/signup', desc:'Sign up for a free dev org' },
+  { icon:'🏗️', name:'Apex Interactive Playground', url:'https://developer.salesforce.com/tools/apex-repl', desc:'Run Apex code in browser' },
+  { icon:'💾', name:'Salesforce CLI (SFDX)', url:'https://developer.salesforce.com/tools/salesforcecli', desc:'Source-driven dev from terminal' },
+  { icon:'🧪', name:'Trailhead Superbadges', url:'https://trailhead.salesforce.com/superbadges', desc:'Project-based challenges' },
+  { icon:'🤖', name:'Salesforce Certification Practice', url:'https://www.salesforce.com/trailblazer/certification-practice-exams', desc:'Official mock exams' },
+];
+const RESOURCES_COMMUNITY = [
+  { icon:'👥', name:'Salesforce Stack Exchange', url:'https://salesforce.stackexchange.com', desc:'Q&A for Salesforce devs & admins' },
+  { icon:'💬', name:'Salesforce Trailblazer Community', url:'https://trailblazers.salesforce.com', desc:'Official community forums' },
+  { icon:'🎙️', name:'Good Day Sir! Podcast', url:'https://www.gooddaysirpodcast.com', desc:'Salesforce podcast for admins' },
+  { icon:'📺', name:'Salesforce Developers YouTube', url:'https://www.youtube.com/c/SalesforceDevelopers', desc:'Video tutorials & demos' },
+  { icon:'🐦', name:'#SalesforceOhana on Twitter/X', url:'https://twitter.com/search?q=%23salesforce', desc:'Community hashtag' },
+];
+
+const QUOTES = [
+  "The secret of getting ahead is getting started.",
+  "Every expert was once a beginner. Every pro was once an amateur.",
+  "You don't have to be great to start, but you have to start to be great.",
+  "Small daily improvements over time lead to stunning results.",
+  "Consistency is what transforms average into excellence.",
+  "A year from now you'll wish you had started today.",
+  "The best time to plant a tree was 20 years ago. The second best time is now.",
+  "Progress, not perfection. Keep going.",
+  "One hour a day, every day, compounds into mastery.",
+  "The journey of a thousand miles begins with a single step.",
+];
+
+// ============================================================
+// MOCK INTERVIEW QUESTIONS — 8 per module
+// ============================================================
+const INTERVIEW_QUESTIONS = {
+  admin: [
+    { q:"What's the difference between a Profile and a Permission Set?", a:"A Profile sets the baseline, required access for a user (one per user) — object, field, app, and page access. A Permission Set grants additional, optional access layered on top, and a user can hold many of them. Permission Sets let you avoid creating dozens of near-duplicate profiles." },
+    { q:"When would you use a Validation Rule instead of a Flow to enforce business logic?", a:"Validation Rules block a bad save instantly with no side effects — ideal for simple field-level checks. Flows are better when the logic spans multiple steps, touches related records, or needs to do more than just stop a save (like sending a notification)." },
+    { q:"How do Role Hierarchy and Sharing Rules differ?", a:"Role Hierarchy grants implicit, vertical access — managers see what their subordinates own. Sharing Rules extend access horizontally, opening records to public groups or roles based on criteria, layered on top of Organization-Wide Defaults." },
+    { q:"What are Organization-Wide Defaults (OWD) and why do they matter?", a:"OWD set the baseline, most-restrictive record access level — Private, Public Read Only, or Public Read/Write — before any sharing rules or manual sharing widen it. Best practice is to start restrictive and open access gradually, since it's far easier to widen access than to lock down an over-permissive org later." },
+    { q:"What's the real difference between a Lookup and a Master-Detail relationship?", a:"Master-Detail is required, enforces cascading delete, and the child record's security inherits from the parent. Lookup is optional, doesn't cascade delete, and is independently secured — the child has its own sharing rules." },
+    { q:"Workflow Rules and Process Builder are being phased out — what do you do with existing logic?", a:"Salesforce stopped issuing bug fixes or updates for both as of the Winter '26 timeframe. Use the official Migrate to Flow tooling to recreate field updates and email alerts as Flow logic, since new automation should be built in Flow going forward." },
+    { q:"What is a Permission Set Group and why use one?", a:"It's a bundle of multiple Permission Sets assigned together as a single unit — useful for representing a job function made up of several smaller, reusable permission sets, without re-creating overlapping individual sets for every role." },
+    { q:"How would you make a field required only for one Record Type?", a:"Field-level 'required' settings apply org-wide and can't vary by Record Type. Instead, use a Validation Rule scoped with RecordType.DeveloperName so the requirement only fires for that specific record type." },
+  ],
+  apex: [
+    { q:"What is bulkification and why does it matter so much in Apex?", a:"It means writing code — especially triggers — to handle a List of records at once using collections and Maps, rather than one record at a time. Governor limits like the 100-SOQL-query cap are hit almost immediately if a query or DML statement sits inside a loop over a list of records." },
+    { q:"Future method vs. Queueable vs. Batch Apex — when do you use each?", a:"Future methods are simple fire-and-forget async calls with only primitive parameters. Queueable supports complex object parameters and job chaining. Batch Apex is built for huge data volumes, processing records in chunks through start/execute/finish with governor limits reset per batch." },
+    { q:"Why do Apex triggers process records in batches of 200?", a:"200 is Salesforce's default DML chunk size for bulk operations like Data Loader. A trigger must always be written assuming it could receive anywhere from 1 to 200 records in a single execution context." },
+    { q:"Why use a trigger handler pattern instead of writing logic directly in the trigger?", a:"It keeps the trigger itself as a thin dispatcher — ideally one trigger per object — delegating real logic to a handler class. That improves testability and readability, and avoids the unpredictable execution order you get from multiple triggers on the same object." },
+    { q:"What's the difference between 'with sharing' and 'without sharing' on an Apex class?", a:"'with sharing' forces the class to respect the running user's record-level sharing rules. 'without sharing' runs in system context, ignoring sharing entirely — and if unspecified, a class inherits the sharing context of whatever called it." },
+    { q:"How should test data be created in Apex test classes?", a:"Use a @testSetup method or a dedicated Test Data Factory class to build fresh sObject records inside each test. Tests run in an isolated data context and can't see existing org data unless SeeAllData=true is used, which is generally discouraged." },
+    { q:"What's a governor limit mistake that catches new Apex developers off guard?", a:"Putting a SOQL query or DML statement inside a for-loop. Hitting the 100-query limit is almost guaranteed once a list grows past 100 records, since each loop iteration fires its own separate query instead of one query outside the loop." },
+    { q:"When would you pick Queueable Apex over a Batch job?", a:"When the job doesn't need to process millions of records in chunks but still needs to run asynchronously, chain into follow-up jobs, or accept complex non-primitive parameters that a Future method simply can't take." },
+  ],
+  lwc: [
+    { q:"@wire vs. an imperative Apex call in LWC — when do you use each?", a:"@wire reactively calls a cacheable Apex method and automatically re-renders when its reactive parameters change. An imperative call (.then/.catch) is explicitly triggered by something like a button click, giving manual control over timing and error handling." },
+    { q:"How does a child LWC communicate up to its parent?", a:"The child dispatches a CustomEvent — this.dispatchEvent(new CustomEvent('name', {detail: payload})) — and the parent listens for it with an on-eventname handler bound in its template." },
+    { q:"What's the real difference between @api and @track?", a:"@api exposes a property or method publicly so a parent component or page can set or read it. @track explicitly marks a property as reactive so changes trigger a re-render — though modern LWC handles primitive reactivity automatically in most cases." },
+    { q:"Why use Lightning Data Service instead of writing Apex for a record form?", a:"LDS — through components like lightning-record-form or wire adapters like getRecord — lets you read and write records with zero Apex, while automatically caching data and respecting field-level security and sharing rules." },
+    { q:"Walk through the typical LWC lifecycle hook order.", a:"constructor() fires first, then connectedCallback() when the component enters the DOM, then render(), then renderedCallback() after the DOM updates, and finally disconnectedCallback() when it's removed. errorCallback() catches errors thrown by child components." },
+    { q:"How do you keep an LWC visually consistent with the rest of Salesforce?", a:"Lean on SLDS (Salesforce Lightning Design System) utility classes, which are globally available in LWC, instead of hand-rolling custom CSS — it keeps the look consistent and accessible by default." },
+    { q:"What changes when deploying an LWC into Experience Cloud vs. an internal Lightning app?", a:"The component code itself doesn't change, but it must be explicitly exposed for the community target in its meta.xml, and any wired or imperative Apex methods need to be accessible under the guest or community user's sharing and permission context." },
+    { q:"A component isn't re-rendering after you update a property — what's the first thing you check?", a:"Whether you mutated an array or object in place (like array.push()) instead of reassigning a new reference. LWC's reactivity relies on detecting a new reference, so 'this.items = [...this.items, newItem]' works where a plain push() often won't." },
+  ],
+  api: [
+    { q:"When would you choose Bulk API over REST API for a data operation?", a:"Bulk API 2.0 is purpose-built for large volumes — thousands to millions of records — using asynchronous batch processing. REST API suits smaller, synchronous, real-time operations on a handful of records at a time." },
+    { q:"What's a Platform Event and how does Streaming API fit in?", a:"A Platform Event is a custom-defined message published and subscribed to via a pub/sub model. Streaming API — or the newer Pub/Sub API — is the transport subscribers use to receive those events in near real time." },
+    { q:"Why use Named Credentials instead of hardcoding API tokens in Apex?", a:"A Named Credential stores the endpoint, auth type, and certificate centrally and securely, so Apex callouts reference it by name rather than embedding secrets directly in code — far better for security and maintainability." },
+    { q:"What OAuth 2.0 flow fits a server-to-server integration with no user present?", a:"Client Credentials Flow or the JWT Bearer Flow are the common choices for machine-to-machine integrations where there's no interactive user login involved at all." },
+    { q:"Metadata API vs. Tooling API — what's the distinction?", a:"Metadata API manages and deploys org configuration — objects, fields, profiles — typically for migrations. Tooling API exposes a richer, more granular set of objects (like Apex class bodies or debug logs) used heavily by IDEs and dev tools." },
+    { q:"How do governor limits differ for outbound Apex callouts vs. inbound API calls?", a:"Outbound Apex callouts are limited per transaction — max callout count and per-callout timeout. Inbound API calls are governed separately by daily API request limits tied to the org's edition and license counts." },
+    { q:"Why might a legacy integration still use SOAP API over REST?", a:"SOAP API offers a strongly-typed, WSDL-based contract that older enterprise integration tools and ESBs were often built to expect, while REST is the lighter-weight, JSON-first choice for newer integrations." },
+    { q:"What's a key security consideration when exposing REST endpoints to Experience Cloud guest users?", a:"Scope the Guest User profile's object and field-level permissions as tightly as possible — least privilege first — since guest-user data exposure has historically been one of the most common Salesforce security misconfigurations." },
+  ],
+  experience: [
+    { q:"What are the main Experience Cloud template families and when do you pick each?", a:"LWR (Lightning Web Runtime) sites are the modern, performance-focused choice for customer and partner sites. Aura-based templates (like Customer Service or Partner Central) still offer broader legacy component support for orgs that need it." },
+    { q:"How does record access differ for a guest user vs. an authenticated community member?", a:"Guest users access data anonymously through the Guest User profile's object and field permissions plus specific guest sharing rules. Authenticated members get access through their assigned profile, permission sets, and standard role and sharing rule mechanisms once logged in." },
+    { q:"What's a common pitfall with Guest User access that admins must watch closely?", a:"Over-permissioning the Guest User profile — for example granting Edit or Delete on sensitive objects — since anyone on the public internet effectively acts as that user before logging in. Salesforce has progressively tightened default guest sharing behavior specifically because of this risk." },
+    { q:"How do you add a custom LWC to an Experience Cloud page?", a:"Build the LWC normally, then expose it for the community target inside its meta.xml. Once exposed, it shows up in Experience Builder's component panel ready to drag onto a page." },
+    { q:"What license types are typically used for external Experience Cloud users?", a:"Customer Community, Customer Community Plus, and Partner Community licenses are the common options, each offering a different level of standard object access and sharing capability for external users." },
+    { q:"How do you customize an Experience Cloud site's branding beyond the built-in theme editor?", a:"Experience Builder's theme panel handles most needs — colors, fonts, logo. For deeper customization, you can override CSS directly or build a custom Lightning Web Runtime theme layout component." },
+    { q:"What does Audience targeting do inside Experience Builder?", a:"It lets you show different page variations, components, or content to different user segments — say, partners vs. customers — based on profile, permission set, or custom criteria, without maintaining separate duplicate pages." },
+    { q:"How do Flows typically get used inside an Experience Cloud site?", a:"A screen flow can be embedded directly as a page component, letting external users complete a guided process — like submitting a claim or onboarding — without any custom code." },
+  ],
+  datacloud: [
+    { q:"What's the difference between a Data Lake Object (DLO) and a Data Model Object (DMO)?", a:"A DLO is the raw data exactly as ingested from the source system. A DMO is the harmonized version of that data, mapped to Data Cloud's standard model and ready for unification, segmentation, and querying." },
+    { q:"Explain Identity Resolution in Data Cloud at a high level.", a:"It's the process of matching and merging records that represent the same real person across different source systems — say, matching email and name across a CRM and an e-commerce platform — into one Unified Individual profile, based on configurable match rules." },
+    { q:"What is a Calculated Insight used for?", a:"It's a metric or aggregation — like total lifetime spend — computed from the unified Data Cloud model using a SQL-like builder, which can then feed back into CRM records or power segmentation." },
+    { q:"How does a Segment differ from a normal CRM report or list view?", a:"A Segment is built on the unified Data Cloud model and can combine attributes and Calculated Insights across multiple harmonized data sources into one audience, then activate that audience out to systems like Marketing Cloud or ad platforms — something a standard report or list view simply can't do across disparate sources." },
+    { q:"What does 'Activation' mean in Data Cloud?", a:"It's the act of publishing a finished Segment or Insight out to a connected external or internal system — Marketing Cloud, Google Ads, a CRM object — so other tools can act on that audience or data." },
+    { q:"Why would a company invest in Data Cloud instead of just using standard Salesforce objects and reports?", a:"Data Cloud is built to ingest and unify data from far more sources than just the CRM — web events, e-commerce, other clouds, third-party systems — at much larger scale, with identity resolution and real-time activation that standard objects and reports were never designed to handle." },
+    { q:"What recent Data Cloud capability lets you extract structured data from documents like invoices?", a:"Document AI, introduced around the Winter '26 release, lets you build schemas and extract structured data from unstructured documents — invoices, resumes, lab reports — directly inside Data Cloud." },
+    { q:"What's a zero-copy connector and why does it matter?", a:"It lets Data Cloud query data sitting in an external platform — like Snowflake, Databricks, or BigQuery — directly, without physically duplicating that data into Salesforce, which cuts storage costs and avoids data going stale." },
+  ],
+  marketing: [
+    { q:"How does a Data Extension differ from a standard Contact or Lead object?", a:"A Data Extension is a flexible, custom-structured table inside Marketing Cloud, not bound to the CRM's fixed schema — built to store subscriber, transactional, or campaign data optimized specifically for sending and personalization at scale." },
+    { q:"What is AMPscript used for?", a:"A scripting language embedded directly in email or landing page content to personalize messages dynamically at send time — pulling subscriber attributes, formatting dates and currency, running conditional logic, and looking up Data Extension values." },
+    { q:"Journey Builder vs. Automation Studio — what's the real difference?", a:"Journey Builder orchestrates multi-step, often long-running customer journeys triggered by events like signup or abandoned cart, with branching logic across channels. Automation Studio runs scheduled or triggered batch processes — data imports, SQL activities, file transfers — that often feed data into those journeys." },
+    { q:"What's a Business Unit and why might a company use several?", a:"A Business Unit is an isolated workspace inside one Marketing Cloud account, commonly used to separate brands, regions, or departments — each gets its own contacts, content, and sending reputation, while optionally sharing select data extensions." },
+    { q:"How does Marketing Cloud Connect tie into core Salesforce CRM?", a:"It's a managed package syncing CRM objects — Leads, Contacts, Campaigns — with Marketing Cloud, letting triggered sends and journeys be kicked off directly from Salesforce automation, like a Flow or Apex trigger, using live CRM data." },
+    { q:"What recent rebranding shift has happened around Marketing Cloud?", a:"Salesforce has been repositioning Marketing Cloud Next/Engagement toward 'Agentforce Marketing' as part of its broader push to weave agentic AI into every cloud, even as classic Marketing Cloud Engagement remains in active use for many customers." },
+    { q:"What does Send Time Optimization (STO) do?", a:"An Einstein-powered feature that predicts the best individual time to email each subscriber based on their historical engagement patterns, instead of blasting the whole list at one fixed time." },
+    { q:"A subscriber isn't receiving an email they should be getting — where do you look first?", a:"Check suppression lists, unsubscribe or opt-out status, and Data Extension subscriber key matching first, then sender authentication or deliverability flags — any of these can silently exclude a subscriber without throwing an obvious error." },
+  ],
+  service: [
+    { q:"What does Omni-Channel Routing actually do?", a:"It automatically assigns incoming work — cases, chats, calls — to the most available, qualified agent based on configured routing models, capacity, and skills, instead of relying on manual queue-based pickup." },
+    { q:"How do Entitlements and Milestones differ?", a:"An Entitlement defines what level of support a customer, account, or asset is eligible for — usually tied to a support contract. Milestones are the specific time-based checkpoints within that process, like 'First Response' or 'Resolution', tracked against an SLA." },
+    { q:"Why use Knowledge instead of a plain custom FAQ object?", a:"Knowledge is purpose-built with article versioning, publishing workflows, multi-channel visibility for internal, partner, or customer audiences, and built-in search and suggestion integration directly into the Case workflow — none of which a plain custom object gives you out of the box." },
+    { q:"What are Macros used for?", a:"They let an agent run a saved sequence of repetitive actions — update fields, send a templated email, change case status — with a single click, speeding up common, repetitive case-handling tasks." },
+    { q:"What role do Einstein Bots typically play in a Service Cloud deployment?", a:"They act as the first line of automated, conversational triage on chat or messaging channels — answering simple FAQs or gathering information before escalating to a live human agent when needed." },
+    { q:"What is Field Service (formerly Field Service Lightning) primarily used for?", a:"Managing and optimizing on-site service work — scheduling technicians, optimizing routes and appointments, tracking parts and inventory, and giving mobile workers an app to manage their work orders out in the field." },
+    { q:"How would you measure agent productivity inside the Service Console?", a:"Through reports and dashboards on metrics like average handle time, cases closed, first-contact resolution rate, and Omni-Channel utilization — often surfaced natively in Service Cloud or via a CRM Analytics/Tableau integration." },
+    { q:"What's a recent AI-driven enhancement to case handling worth mentioning?", a:"Automated case closure and AI-generated next-best-action prompts through Agentforce and Einstein, where an agent — sometimes an autonomous AI agent itself — can draft responses, suggest knowledge articles, or even close simple resolved cases automatically." },
+  ],
+  advanced: [
+    { q:"What's the core advantage of Salesforce DX over Change Sets for deployments?", a:"SFDX enables source-driven development backed by Git version control, disposable scratch orgs for isolated feature work, and CI/CD pipeline integration — none of which the manual, click-based, org-to-org Change Set tool supports." },
+    { q:"What is a scratch org and why is it useful?", a:"A temporary, disposable, source-tracked org spun up from a configuration definition file, used for isolated feature development and testing without touching a shared sandbox, then discarded once the feature merges." },
+    { q:"How does Salesforce's Security Review differ from a typical internal code review?", a:"It's Salesforce's formal AppExchange security assessment, checking for vulnerabilities like XSS, SOQL injection, and insecure sharing — a mandatory gate before any app can be listed publicly, going well beyond a routine internal peer review." },
+    { q:"Unmanaged package vs. managed package — what's the distinction?", a:"An unmanaged package's components become fully editable by the installing org once installed, like a one-time template. A managed package's components stay locked and controlled by the publisher, who can version and upgrade them centrally — the model behind most AppExchange products." },
+    { q:"Why are governor limits architected the way they are on a multi-tenant platform?", a:"Because many customers share the same underlying infrastructure, governor limits stop any single org's runaway code or queries from degrading performance for every other tenant on that instance." },
+    { q:"Apex trigger logic vs. Flow automation at scale — how do you decide?", a:"Flow is fast to build declaratively and is now performance-competitive for most use cases, but very high-volume, deeply conditional logic — especially anything needing tight recursion control or complex collection processing — is often still better handled by well-bulkified Apex." },
+    { q:"Should you still build new automation in Workflow Rules or Process Builder today?", a:"No — Salesforce ended support for both, meaning no further bug fixes or feature updates as of the Winter '26 timeframe. New automation should go into Flow, and existing legacy logic should be migrated over." },
+    { q:"What's the main difference between the Administrator and Platform Developer I certifications?", a:"The Administrator exam focuses on declarative configuration, security, data management, and business process automation without code. Platform Developer I adds Apex, SOQL/DML, triggers, testing, and basic LWC/Visualforce on top of core admin concepts." },
+  ],
+};
+
+// ============================================================
+// SALESFORCE RELEASE NOTES — year by year
+// ============================================================
+const RELEASES = [
+  {
+    year: 2026,
+    items: [
+      {
+        name:"Summer '26", date:"Released June 15, 2026", current:true,
+        theme:"The headline theme is the 'Agentic Enterprise' — humans and AI agents working side by side across every cloud, with multi-agent coordination becoming a first-class platform capability.",
+        highlights:[
+          "Multi-Agent Orchestration in Agentforce lets several specialized agents work together as a team to solve complex, end-to-end workflows instead of one agent handling everything alone.",
+          "Slack First Sales brings CRM context and a conversational Slackbot directly into Slack, giving sellers a proactive layer of agents that can prospect, engage leads, and manage pipeline.",
+          "AMPscript finally comes to Marketing Cloud Next, bringing it into closer alignment with classic Marketing Cloud's personalization capabilities.",
+          "Rich Communication Standard (RCS) messaging is now natively supported, letting marketers send branded, interactive messages through native messaging apps instead of plain SMS.",
+          "Chatter is now disabled by default in newly created orgs — a clear signal Salesforce is winding the feature down, though existing orgs are unaffected.",
+          "The enhanced profile permission view now highlights indirect changes for an admin to review before saving, reducing accidental permission drift.",
+          "Malware scanning for Experience Cloud Salesforce Files reached General Availability, and file upload limits rose to 10GB on Aura and LWR sites.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/releases/"
+      },
+      {
+        name:"Spring '26", date:"Rolled out Jan–Feb 2026",
+        theme:"A major rebranding wave — Sales Cloud and Marketing Cloud Next get folded into the Agentforce naming, alongside a serious upgrade to Flow Builder's AI capabilities.",
+        highlights:[
+          "Sales Cloud is rebranded Agentforce Sales, and Marketing Cloud Next becomes Agentforce Marketing, reflecting the platform-wide shift toward autonomous agents.",
+          "Setup with Agentforce, Agentforce Builder, and Agent Script all launch in Beta, pushing AI-assisted configuration deeper into admin and developer workflows.",
+          "Flow Builder gains Agentforce for Flow — conversational, natural-language editing of record-triggered and scheduled flows directly inside the Agentforce panel.",
+          "A redesigned Flow canvas adds collapsible Decision and Loop branches, mouse/keyboard panning, and on-canvas performance metrics like run counts and status breakdowns.",
+          "Apex Cursors arrive for efficiently processing very large data sets without hitting standard query limits.",
+          "Experience Cloud gets 10GB file size limits and bot-friendly Generative Engine Optimization for better discoverability.",
+          "Mandatory security deadlines kick in: migration to External Client Apps and the retirement of Triple DES encryption.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/spring-26-release/"
+      },
+    ]
+  },
+  {
+    year: 2025,
+    items: [
+      {
+        name:"Winter '26", date:"Rolled out Sep–Oct 2025",
+        theme:"The first real step toward the 'Agentic Enterprise' vision, alongside a hard deadline for retiring legacy automation tools.",
+        highlights:[
+          "Agentforce for Sales and Agentforce for Service launch with 24/7 autonomous lead generation, pipeline automation, and proactive support capabilities.",
+          "Lightning Out 2.0 lets you embed existing LWCs directly into external, non-Salesforce applications.",
+          "Data Cloud adds Document AI for extracting structured data from unstructured documents like invoices and resumes, plus federated authentication for zero-copy connectors to Snowflake, Databricks, and Google BigQuery.",
+          "Workflow Rules and Process Builder officially stop receiving bug fixes or updates after December 31, 2025 — migration to Flow becomes mandatory for any new logic.",
+          "Flow Builder adds AI-powered Decision elements for analyzing unstructured data, plus a smarter, filterable Resource Menu.",
+          "TLS certificate lifespans begin shortening from 398 days toward 47 days by 2029, requiring automated certificate rotation going forward.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/winter-26-release/"
+      },
+      {
+        name:"Summer '25", date:"Rolled out Apr–Jun 2025",
+        theme:"Agentforce 3 launches as a next-generation AI platform built explicitly for hybrid human-and-agent teams, alongside the introduction of Tableau Next.",
+        highlights:[
+          "Agentforce 3 positions AI agents to handle repetitive tasks while humans focus on nuance and empathy — a more mature framing than earlier Agentforce releases.",
+          "Tableau Next debuts as an API-first analytics platform combining Tableau, Agentforce's context-aware AI, and Data Cloud's semantic layer.",
+          "Agentforce SDR expands to engage Contacts and Person Accounts (not just Leads) across multiple languages, with admins able to preview agent-generated emails before they go out.",
+          "Data Cloud adds AI Tagging and Classification for automated metadata labeling, plus Policy-Based Governance for managing data compliance rules.",
+          "Service Cloud's Knowledge component gets a Table of Contents feature and improved article feedback, reaching General Availability.",
+          "Sales Cloud adds native LinkedIn Lead Form syncing, keeping inbound LinkedIn leads flowing directly into Salesforce.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/releases/"
+      },
+      {
+        name:"Spring '25", date:"Rolled out Jan–Feb 2025",
+        theme:"Continued expansion of Agentforce following its Winter '25 debut, with smaller but useful quality-of-life admin improvements.",
+        highlights:[
+          "Agentforce capabilities expand further across Sales and Service use cases following the prior release's initial launch.",
+          "Dynamic Related List — Single component reaches feature parity between desktop and mobile (Beta).",
+          "Quick Filters on the Record Type field gain multi-select picklist support, removing the need to type values manually.",
+          "Continued Data Cloud unification and segmentation improvements lay groundwork for the bigger Summer '25 Data Cloud features.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/releases/"
+      },
+    ]
+  },
+  {
+    year: 2024,
+    items: [
+      {
+        name:"Winter '25", date:"Rolled out Sep–Oct 2024",
+        theme:"Agentforce makes its debut at Dreamforce 2024, introducing autonomous AI agents as a brand-new product category on the platform.",
+        highlights:[
+          "Agentforce launches with the Agentforce Service Agent, Salesforce's first autonomous AI agent capable of resolving customer issues across channels without a human handling every step.",
+          "Data Cloud receives further upgrades to support Agentforce's reasoning, including better grounding of agent responses in real customer data.",
+          "Continued Flow Builder refinements make declarative automation more capable for complex business processes.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/releases/"
+      },
+      {
+        name:"Summer '24", date:"Rolled out Apr–Jun 2024",
+        theme:"Einstein Copilot matures toward general availability, with deeper Slack and Data Cloud integration across the platform.",
+        highlights:[
+          "Einstein Copilot continues its rollout toward General Availability, building on its Spring '24 beta debut.",
+          "Slack integration deepens across Sales and Service workflows ahead of the eventual Agentforce-in-Slack capabilities.",
+          "Data Cloud segmentation and activation tooling continues to mature, setting the stage for that year's Dreamforce Agentforce announcement.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/releases/"
+      },
+      {
+        name:"Spring '24", date:"Rolled out Jan–Feb 2024",
+        theme:"Einstein Copilot becomes available in Beta, alongside continued investment in Flow Builder tooling for admins.",
+        highlights:[
+          "Einstein Copilot launches in Beta, giving users a conversational AI assistant embedded directly in Salesforce — the direct predecessor to Agentforce.",
+          "Flow Builder adds a Trigger Explorer for visualizing which automations fire on a given object and in what order.",
+          "Data Cloud segmentation tools continue expanding to support more granular customer targeting.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/releases/"
+      },
+    ]
+  },
+  {
+    year: 2023,
+    items: [
+      {
+        name:"Winter '24", date:"Rolled out Sep–Oct 2023",
+        theme:"Einstein Copilot is announced (Beta) at Dreamforce 2023, alongside steady Dynamic Related List and Flow improvements.",
+        highlights:[
+          "Einstein Copilot is announced at Dreamforce as Salesforce's first conversational AI assistant for the CRM, entering Beta shortly after.",
+          "Dynamic Related Lists continue expanding to more objects, reducing the need for custom related list components.",
+          "Flow Builder gains further usability refinements for admins building multi-step automations.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/releases/"
+      },
+      {
+        name:"Summer '23", date:"Rolled out Apr–Jun 2023",
+        theme:"Salesforce Genie is renamed Data Cloud, signaling its shift from a standalone real-time engine into the platform's core unified data layer.",
+        highlights:[
+          "Salesforce Genie is rebranded as Data Cloud, formalizing its role as the platform-wide customer data foundation rather than a standalone add-on.",
+          "Pardot's rename to Account Engagement continues rolling out across documentation and the product UI.",
+          "Flow orchestration capabilities continue maturing toward broader general availability.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/releases/"
+      },
+      {
+        name:"Spring '23", date:"Rolled out Jan–Feb 2023",
+        theme:"Salesforce signals its generative AI direction with the Einstein GPT announcement, while Dynamic Forms expand to more standard objects.",
+        highlights:[
+          "Einstein GPT is announced, marking Salesforce's first major public generative AI push across the CRM — the conceptual seed that eventually grows into Agentforce.",
+          "Dynamic Forms support expands to more standard objects, letting admins build conditional, field-level layouts without code.",
+          "Flow orchestration moves toward General Availability, supporting more complex multi-stage business processes.",
+        ],
+        link:"https://www.salesforce.com/products/innovation/releases/"
+      },
+    ]
+  },
+];
+
+// ============================================================
+// DAILY TIPS — rotating tip-of-the-day + browsable archive
+// ============================================================
+const TIPS = [
+  { cat:"Apex", title:"Bulkify Always", body:"Never put a SOQL query or DML statement inside a for loop. Query and update lists in bulk outside the loop using Maps for fast lookups — it's the #1 cause of governor limit errors." },
+  { cat:"Admin", title:"OWD First, Then Widen", body:"Always set Organization-Wide Defaults to the most restrictive option, then open access gradually with sharing rules. It's far easier to widen access later than to lock down an over-permissive org." },
+  { cat:"LWC", title:"Reassign, Don't Mutate", body:"Mutating an array with push() or splice() won't reliably trigger an LWC re-render. Always reassign with a new reference, like this.items = [...this.items, newItem]." },
+  { cat:"Flow", title:"Before-Save Flows Are Faster", body:"For simple single-object field updates with no complex logic, a Before-Save Flow runs faster than an After-Save Flow or Apex trigger, since it skips a full second save operation." },
+  { cat:"Security", title:"Audit Your Guest User", body:"Periodically review the Guest User profile's object permissions in Experience Cloud. It's one of the most common sources of accidental public data exposure." },
+  { cat:"Apex", title:"Build a Test Data Factory", body:"Use a reusable @testSetup method or a dedicated TestDataFactory class instead of duplicating record-creation code in every test method. It keeps tests maintainable as your schema evolves." },
+  { cat:"Admin", title:"Permission Set Groups Scale Better", body:"Instead of one giant profile per job role, build small reusable Permission Sets and bundle them into Permission Set Groups. It scales far better as roles change over time." },
+  { cat:"API", title:"Never Hardcode Credentials", body:"Don't embed an API endpoint, username, or token directly in Apex. Use a Named Credential so authentication details are stored securely and managed centrally." },
+  { cat:"Data Cloud", title:"DLO vs. DMO, Memorized", body:"A Data Lake Object is the raw ingested data. A Data Model Object is the cleaned, harmonized version mapped to Data Cloud's standard model. Segmentation and activation work happens on DMOs." },
+  { cat:"LWC", title:"Wire for Data, Imperative for Actions", body:"Use @wire for data that should load automatically and stay reactive. Use an imperative Apex call when a user action — like a button click — should trigger the request on demand." },
+  { cat:"Marketing Cloud", title:"Preview AMPscript Before Sending", body:"Wrap suspect AMPscript blocks in %%[ ]%% and use Content Builder's preview or test-send feature before a real send. A single syntax error can break an entire email's render." },
+  { cat:"Service Cloud", title:"Weight Omni-Channel Capacity Per Channel", body:"Configure routing capacity weights carefully — an agent juggling chats and cases needs different capacity values per channel, not one flat number applied across all work types." },
+  { cat:"Admin", title:"Validation Rules Can't Be Bypassed", body:"Validation rules fire before save, after default field values and most automation, and can't be skipped — even by an admin — unless the rule itself is explicitly deactivated." },
+  { cat:"Apex", title:"Memorize the Big Three Limits", body:"Know these cold: 100 SOQL queries, 150 DML statements, and 10,000 records returned per query — all per single transaction." },
+  { cat:"Experience Cloud", title:"Check Components Before Picking a Template", body:"LWR sites are faster and more modern, but support fewer legacy Aura-based components than older templates. Confirm your required components are LWR-compatible before committing to a template." },
+  { cat:"Flow", title:"Break Big Flows Into Subflows", body:"Split large, complex flows into smaller reusable subflows. It makes testing, debugging, and reusing logic across multiple parent flows far easier." },
+  { cat:"Security", title:"Pair Object Access With Field-Level Security", body:"Object access alone isn't enough — always pair it with field-level permissions so sensitive fields, like an SSN, aren't exposed even to users who can otherwise see the record." },
+  { cat:"Apex", title:"One Trigger Per Object", body:"Stick to exactly one trigger per object, delegating all logic to a handler class. Multiple triggers on the same object fire in an unpredictable order." },
+  { cat:"Data Cloud", title:"Start With Your Strongest Match Key", body:"Begin identity resolution with your most reliable matching key, like a verified email, before adding fuzzy matching rules. Overly aggressive rules can incorrectly merge two different people into one profile." },
+  { cat:"LWC", title:"Check SLDS Before Writing Custom CSS", body:"Before writing custom CSS, check whether Salesforce Lightning Design System already has a utility class for it — it keeps your UI visually consistent with the rest of the org." },
+  { cat:"Admin", title:"Record Types and Page Layouts Solve Different Problems", body:"Record Types control which picklist values and which page layout a user sees. Page Layouts control which fields and buttons appear. They work together but aren't interchangeable." },
+  { cat:"Apex", title:"Queueable Jobs Can Chain Themselves", body:"A Queueable job can enqueue another Queueable from within itself, letting you chain sequential async steps — something a simple Future method can't do." },
+  { cat:"Marketing Cloud", title:"Check Suppression Lists First", body:"Before troubleshooting 'why didn't this subscriber get my email,' check suppression lists and unsubscribe status first — it's the most common reason for silent non-delivery." },
+  { cat:"Service Cloud", title:"Version, Don't Edit, Knowledge Articles", body:"Always create a new version of a Knowledge article instead of editing the published version directly, so changes can be reviewed before they go live to customers." },
+  { cat:"API", title:"Switch to Bulk API Past a Few Thousand Records", body:"If you're moving more than a few thousand records, switch from REST API to Bulk API 2.0. REST will hit limits and run far slower at real data volume." },
+  { cat:"Admin", title:"Refresh Sandboxes Regularly", body:"Stale sandbox data and configuration drift from production cause surprises at go-live. Refresh sandboxes on a regular cadence so testing stays realistic." },
+  { cat:"Flow", title:"Always Add Fault Paths", body:"Add a fault connector to any Flow element that calls an API, creates a record, or could otherwise fail, so errors are handled gracefully instead of crashing the whole flow silently." },
+  { cat:"Apex", title:"Mark Sensitive Classes 'With Sharing'", body:"Apex classes default to the sharing context of whatever called them. Explicitly mark sensitive classes 'with sharing' so they always respect the running user's record access." },
+  { cat:"Data Cloud", title:"Build Calculated Insights Once, Reuse Often", body:"Build a Calculated Insight once for a metric like lifetime value, then reuse it across multiple segments instead of recalculating similar logic separately in every segment." },
+  { cat:"Experience Cloud", title:"Use Audience Targeting Instead of Duplicate Pages", body:"Show different page content to different user segments — like partners vs. customers — using Experience Builder's Audience feature, instead of maintaining separate duplicate pages." },
+  { cat:"LWC", title:"Reach for Lightning Data Service First", body:"For simple record read/edit forms, use lightning-record-form or lightning-record-edit-form before writing custom Apex. It automatically respects field-level security and sharing." },
+  { cat:"Admin", title:"Prioritize Migrating Legacy Automation", body:"Workflow Rules and Process Builder no longer receive bug fixes or updates. If either is still running in your org, prioritize migrating that logic into Flow." },
+  { cat:"Service Cloud", title:"Build a Macro for Repetitive Steps", body:"If agents perform the same three or four steps on certain case types repeatedly, build a Macro. It turns a two-minute manual task into a single click." },
+  { cat:"Apex", title:"Use Custom Exception Classes", body:"Define custom Exception classes for business-specific errors instead of throwing generic exceptions. It makes debugging and catching specific failure types far clearer in larger codebases." },
+  { cat:"Marketing Cloud", title:"Design a Clear Primary Key Early", body:"Design Data Extensions with a clear primary key, like Subscriber Key, from day one. Retrofitting a key onto millions of existing rows later is genuinely painful." },
+  { cat:"Security", title:"Enforce MFA Org-Wide", body:"Multi-factor authentication has been required for direct logins for years now, and it remains one of the single most effective account security controls available — make sure no exceptions have crept in." },
+  { cat:"Flow", title:"Avoid DML and SOQL Inside Flow Loops Too", body:"The same bulkification rule from Apex applies in Flow — gather records into a Collection variable inside the loop, then run a single bulk Create or Update Records element after it ends." },
+  { cat:"Data Cloud", title:"Consider Zero-Copy Before Migrating Data", body:"If your company already has a large Snowflake, Databricks, or BigQuery warehouse, a zero-copy connector lets Data Cloud query it directly without duplicating data — saving storage and avoiding staleness." },
+  { cat:"Admin", title:"Change Sets Are Still Fine for Simple Moves", body:"For small, infrequent metadata deployments without a dedicated dev team or CI/CD pipeline, Change Sets remain a perfectly reasonable lightweight option — you don't always need full SFDX tooling." },
+  { cat:"General", title:"Build a Release Notes Habit", body:"Skim the official release notes for your relevant clouds every season — Spring, Summer, Winter. Many new features quietly change default behavior, and you don't want to be surprised by it in production." },
+];
+
+
+// ============================================================
+// STATE — robust localStorage persistence
+// ============================================================
+const LS_KEY = 'sfhub_v2_state';
+
+function defaultState() {
+  return { completedTopics:{}, studyDays:[], streak:0, lastStudyDate:null, notes:{}, xp:0, earnedBadges:{}, interviewPracticed:{}, readTips:{}, _version:2 };
+}
+function getState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) {
+      // Migrate from old key if it exists
+      const legacy = localStorage.getItem('sfhub_state');
+      if (legacy) {
+        const parsed = JSON.parse(legacy);
+        const merged = Object.assign(defaultState(), parsed);
+        localStorage.setItem(LS_KEY, JSON.stringify(merged));
+        localStorage.removeItem('sfhub_state');
+        return merged;
+      }
+      return defaultState();
+    }
+    return Object.assign(defaultState(), JSON.parse(raw));
+  } catch(e) { console.warn('SF Hub: load failed, fresh start.', e); return defaultState(); }
+}
+function saveState(s) {
+  try {
+    s._version = 2;
+    s._savedAt = new Date().toISOString();
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+  } catch(e) {
+    console.error('SF Hub: save failed.', e);
+    const w = document.createElement('div');
+    w.style.cssText = 'position:fixed;top:16px;right:16px;z-index:9999;background:#ef4444;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;font-family:DM Sans,sans-serif';
+    w.textContent = '⚠️ Could not save — localStorage may be full or disabled.';
+    document.body.appendChild(w); setTimeout(()=>w.remove(),4000);
+  }
+}
+let STATE = getState();
+
+// ============================================================
+// COMPUTED
+// ============================================================
+function computeStats() {
+  const total = MODULES.reduce((a,m) => a + m.topics.length, 0);
+  const done = Object.keys(STATE.completedTopics).filter(k=>STATE.completedTopics[k]).length;
+  const pct = Math.round(done/total*100);
+  const theoryDone = MODULES.flatMap(m=>m.topics).filter(t=>(t.type==='theory'||t.type==='both') && STATE.completedTopics[t.id]).length;
+  const codingDone = MODULES.flatMap(m=>m.topics).filter(t=>(t.type==='coding'||t.type==='both') && STATE.completedTopics[t.id]).length;
+  const moduleDone = {};
+  MODULES.forEach(m=>{ moduleDone[m.id]=m.topics.filter(t=>STATE.completedTopics[t.id]).length; });
+  const noteCount = Object.keys(STATE.notes||{}).filter(k=>STATE.notes[k]&&STATE.notes[k].trim()).length;
+  const interviewCount = Object.values(STATE.interviewPracticed||{}).reduce((sum,modMap)=>sum+Object.values(modMap||{}).filter(Boolean).length,0);
+  const tipsReadCount = Object.values(STATE.readTips||{}).filter(Boolean).length;
+  return { total, done, pct, theoryDone, codingDone, moduleDone, totalDone:done, totalDays:STATE.studyDays.length, streak:STATE.streak, noteCount, interviewCount, tipsReadCount };
+}
+
+function computeLevel(xp) {
+  const levels=[
+    {min:0,max:500,name:'Trailhead Rookie',num:1},
+    {min:500,max:1500,name:'Apex Apprentice',num:2},
+    {min:1500,max:3000,name:'Flow Builder',num:3},
+    {min:3000,max:5000,name:'LWC Developer',num:4},
+    {min:5000,max:8000,name:'Integration Architect',num:5},
+    {min:8000,max:12000,name:'Cloud Specialist',num:6},
+    {min:12000,max:99999,name:'Salesforce Master',num:7},
+  ];
+  for(const l of levels){ if(xp>=l.min&&xp<l.max) return l; }
+  return levels[levels.length-1];
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+const SECTIONS = ['dashboard','roadmap','timetable','modules','topics','resources','interview','progress','badges','notes','releases','dailytip'];
+const SECTION_TITLES = {
+  dashboard:'<span>Dashboard</span>',
+  roadmap:'<span>Roadmap</span>',
+  timetable:'Weekly <span>Plan</span>',
+  modules:'<span>Modules</span>',
+  topics:'Topic <span>Tracker</span>',
+  resources:'<span>Resources</span>',
+  progress:'My <span>Progress</span>',
+  badges:'<span>Badges</span>',
+  notes:'My <span>Notes</span>',
+  interview:'Mock <span>Interview</span>',
+  releases:'Release <span>Updates</span>',
+  dailytip:'Daily <span>Tip</span>',
+};
+function showSection(id) {
+  SECTIONS.forEach(s=>{
+    document.getElementById('sec-'+s).classList.toggle('active',s===id);
+  });
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.classList.toggle('active', el.textContent.toLowerCase().includes(id)||
+      (id==='dashboard'&&el.textContent.includes('Dashboard'))||
+      (id==='roadmap'&&el.textContent.includes('Roadmap'))||
+      (id==='timetable'&&el.textContent.includes('Weekly'))||
+      (id==='modules'&&el.textContent.includes('Module'))||
+      (id==='topics'&&el.textContent.includes('Topic'))||
+      (id==='resources'&&el.textContent.includes('Resource'))||
+      (id==='progress'&&el.textContent.includes('Progress'))||
+      (id==='badges'&&el.textContent.includes('Badge'))||
+      (id==='notes'&&el.textContent.includes('Notes'))||
+      (id==='interview'&&el.textContent.includes('Interview'))||
+      (id==='releases'&&el.textContent.includes('Release'))||
+      (id==='dailytip'&&el.textContent.includes('Daily Tip'))
+    );
+  });
+  document.getElementById('pageTitle').innerHTML = SECTION_TITLES[id]||id;
+  if(id==='topics') renderTopics();
+  if(id==='progress') renderProgress();
+  if(id==='badges') renderBadges();
+  if(id==='notes') renderNotesModuleSelect();
+  if(id==='interview') renderInterview();
+  if(id==='releases') renderReleases();
+  if(id==='dailytip') renderDailyTip();
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(btn, contentId) {
+  const parent = btn.closest('.tabs').nextElementSibling.parentElement;
+  btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  parent.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(contentId).classList.add('active');
+}
+
+// ============================================================
+// HEATMAP
+// ============================================================
+function renderHeatmap(id) {
+  const el = document.getElementById(id);
+  el.innerHTML='';
+  const days=90;
+  for(let i=days-1;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    const studied=STATE.studyDays.includes(key);
+    const cell=document.createElement('div');
+    cell.className='heat-cell heat-'+(studied?'3':'0');
+    cell.title=key+(studied?' ✓ Studied':'');
+    el.appendChild(cell);
+  }
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const stats = computeStats();
+  document.getElementById('statTopics').textContent = stats.done;
+  document.getElementById('statTopicsPct').textContent = stats.pct+'%';
+  document.getElementById('statDays').textContent = stats.totalDays;
+  document.getElementById('statModules').textContent = MODULES.filter(m=>m.topics.every(t=>STATE.completedTopics[t.id])).length;
+  document.getElementById('streakCount').textContent = STATE.streak||0;
+
+  // XP
+  const xp = STATE.xp||0;
+  const level = computeLevel(xp);
+  document.getElementById('levelBadge').textContent = `Level ${level.num} — ${level.name}`;
+  document.getElementById('xpCurrent').textContent = xp;
+  document.getElementById('xpNext').textContent = level.max<99999?level.max:'MAX';
+  const pct = level.max<99999 ? Math.min(100,Math.round((xp-level.min)/(level.max-level.min)*100)) : 100;
+  document.getElementById('xpFill').style.width = pct+'%';
+
+  // Quote
+  document.getElementById('quoteText').textContent = '"'+QUOTES[new Date().getDay() % QUOTES.length]+'"';
+
+  // Progress bars
+  const pbEl = document.getElementById('dashProgressBars');
+  pbEl.innerHTML='';
+  MODULES.forEach(m=>{
+    const done = m.topics.filter(t=>STATE.completedTopics[t.id]).length;
+    const pct2 = Math.round(done/m.topics.length*100);
+    pbEl.innerHTML+=`<div class="progress-bar-wrap">
+      <div class="progress-bar-header">
+        <span class="progress-bar-name">${m.icon} ${m.name}</span>
+        <span class="progress-bar-pct">${pct2}%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct2}%;background:${m.color}"></div></div>
+    </div>`;
+  });
+
+  // Today's focus
+  const day = new Date().getDay();
+  const isWeekend = day===0||day===6;
+  const todayEl = document.getElementById('todayFocus');
+  if(isWeekend){
+    todayEl.innerHTML=`
+      <div class="today-task"><span class="today-task-icon">🔁</span> Week recap — quiz yourself on last week's topics</div>
+      <div class="today-task"><span class="today-task-icon">⚡</span> 2 hrs hands-on coding / Dev Org practice</div>
+      <div class="today-task"><span class="today-task-icon">🏗️</span> Mini project or Superbadge challenge</div>
+      <div class="today-task"><span class="today-task-icon">📊</span> Update your tracker & plan next week</div>`;
+  } else {
+    const nextTopic = MODULES.flatMap(m=>m.topics).find(t=>!STATE.completedTopics[t.id]);
+    todayEl.innerHTML=`
+      <div class="today-task"><span class="today-task-icon">🌅</span> Review yesterday's notes (15 min)</div>
+      <div class="today-task"><span class="today-task-icon">📖</span> Study: <strong>${nextTopic?nextTopic.name:'All caught up! 🎉'}</strong> (35 min)</div>
+      <div class="today-task"><span class="today-task-icon">✍️</span> Write 3 key takeaways in Notes (10 min)</div>`;
+  }
+
+  renderHeatmap('heatmap');
+  renderHeatmap('heatmap2');
+}
+
+// ============================================================
+// ROADMAP
+// ============================================================
+function renderRoadmap() {
+  const el = document.getElementById('roadmapTimeline');
+  el.innerHTML='';
+  PHASES.forEach((p,i)=>{
+    const dot = p.status==='done'?'done':p.status==='active'?'active':'todo';
+    el.innerHTML+=`<div class="phase-item">
+      <div class="phase-line-wrap">
+        <div class="phase-dot ${dot}"></div>
+        ${i<PHASES.length-1?'<div class="phase-connector"></div>':''}
+      </div>
+      <div class="phase-body">
+        <div class="phase-header">
+          <div class="phase-name">${p.name}</div>
+          <div class="phase-duration">${p.duration}</div>
+        </div>
+        <div class="phase-desc">${p.desc}</div>
+        <div class="phase-topics-inline">${p.topics.map(t=>`<span class="pill">${t}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  });
+
+  const tb = document.getElementById('timeBreakdown');
+  const items = [
+    {label:'Weekday Hours',val:'~5 hrs/wk',sub:'1 hr × 5 days theory'},
+    {label:'Weekend Hours',val:'~6-8 hrs/wk',sub:'3-4 hrs × 2 days coding'},
+    {label:'Total Duration',val:'18 months',sub:'~350-400 hours total'},
+    {label:'Modules',val:'9 modules',sub:'Admin to Advanced'},
+    {label:'Topics',val:`${MODULES.reduce((a,m)=>a+m.topics.length,0)} topics`,sub:'Theory + coding'},
+    {label:'Certs to Target',val:'2 certs',sub:'Admin + Platform Dev I'},
+  ];
+  tb.innerHTML=items.map(i=>`<div class="stat-card" style="background:var(--surface2)">
+    <div class="stat-value" style="font-size:22px">${i.val}</div>
+    <div class="stat-label">${i.label}</div>
+    <div class="stat-sub" style="color:var(--text3);font-size:11px;margin-top:4px">${i.sub}</div>
+  </div>`).join('');
+}
+
+// ============================================================
+// TIMETABLE
+// ============================================================
+function renderTimetable() {
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const weekend = [false,false,false,false,false,true,true];
+  const plans = [
+    [
+      {type:'theory',tag:'Theory',text:'Read: SF Platform Overview'},
+      {type:'review',tag:'Review',text:'Flashcards: Objects & Fields'},
+    ],
+    [
+      {type:'theory',tag:'Theory',text:'Study: Profiles & Permissions'},
+      {type:'review',tag:'Review',text:'Notes from yesterday'},
+    ],
+    [
+      {type:'theory',tag:'Theory',text:'Flows: Screen Flows'},
+      {type:'review',tag:'Review',text:'Quiz yourself'},
+    ],
+    [
+      {type:'theory',tag:'Theory',text:'Apex: Syntax & DML'},
+      {type:'review',tag:'Review',text:'SOQL practice queries'},
+    ],
+    [
+      {type:'theory',tag:'Theory',text:'Week recap + plan next'},
+      {type:'review',tag:'Review',text:'Update topic tracker'},
+    ],
+    [
+      {type:'coding',tag:'Coding',text:'Dev Org: Build triggers'},
+      {type:'coding',tag:'Project',text:'Mini project: Apex handler'},
+    ],
+    [
+      {type:'coding',tag:'Coding',text:'LWC: Build a component'},
+      {type:'rest',tag:'Buffer',text:'Review or catch-up day'},
+    ],
+  ];
+  const grid = document.getElementById('timetableGrid');
+  grid.innerHTML='';
+  days.forEach((d,i)=>{
+    let html=`<div class="day-col"><div class="day-header${weekend[i]?' weekend':''}">${d}</div>`;
+    plans[i].forEach(b=>{
+      html+=`<div class="day-block block-${b.type}"><span class="block-tag">${b.tag}</span>${b.text}</div>`;
+    });
+    html+=`</div>`;
+    grid.innerHTML+=html;
+  });
+}
+
+// ============================================================
+// MODULES
+// ============================================================
+function renderModules() {
+  const grid = document.getElementById('modulesGrid');
+  grid.innerHTML='';
+  MODULES.forEach((m,i)=>{
+    const done = m.topics.filter(t=>STATE.completedTopics[t.id]).length;
+    const pct = Math.round(done/m.topics.length*100);
+    const allPrev = i===0||MODULES.slice(0,i).every(pm=>pm.topics.filter(t=>STATE.completedTopics[t.id]).length>=pm.topics.length*0.5);
+    const status = pct===100?'done':(!allPrev&&i>0)?'locked':pct>0?'active':'todo';
+    const chipClass = {done:'chip-done',locked:'chip-locked',active:'chip-active',todo:'chip-todo'}[status];
+    const chipLabel = {done:'✓ Done',locked:'🔒 Locked',active:'In Progress',todo:'Up Next'}[status];
+    grid.innerHTML+=`<div class="module-card${status==='locked'?' locked':''}" onclick="openModuleModal('${m.id}')">
+      <div class="module-card-header">
+        <div class="module-icon">${m.icon}</div>
+        <div class="module-status-chip ${chipClass}">${chipLabel}</div>
+      </div>
+      <div class="module-name">${m.name}</div>
+      <div class="module-desc">${m.desc}</div>
+      <div class="module-meta">
+        <div class="module-meta-item">⏱ <span>${m.hours} hrs</span></div>
+        <div class="module-meta-item">📅 <span>${m.weeks}</span></div>
+        <div class="module-meta-item">📋 <span>${done}/${m.topics.length}</span> topics</div>
+      </div>
+      <div class="module-progress" style="margin-bottom:10px">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:${m.color}"></div></div>
+      </div>
+      <a href="${m.trailhead}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--accent);text-decoration:none;opacity:0.75;transition:opacity 0.2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">🛤️ Trailhead →</a>
+    </div>`;
+  });
+}
+
+function openModuleModal(mid) {
+  const m = MODULES.find(x=>x.id===mid);
+  document.getElementById('modalTitle').textContent = m.icon+' '+m.name;
+  document.getElementById('modalMeta').textContent = m.weeks+' • '+m.hours+' hours';
+  const done = m.topics.filter(t=>STATE.completedTopics[t.id]).length;
+  const pct = Math.round(done/m.topics.length*100);
+  document.getElementById('modalContent').innerHTML=`
+    <p style="font-size:13px;color:var(--text3);margin-bottom:12px">${m.desc}</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:12px;color:var(--text3)">${done}/${m.topics.length} topics &nbsp;·&nbsp; <span style="color:${m.color};font-weight:700">${pct}% done</span></div>
+      <a href="${m.trailhead}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,rgba(0,168,232,0.15),rgba(124,58,237,0.1));border:1px solid rgba(0,168,232,0.3);color:var(--accent);font-size:12px;font-weight:600;text-decoration:none" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+        🛤️ Open on Trailhead →
+      </a>
+    </div>
+    <div class="topic-list">
+      ${m.topics.map(t=>{
+        const isDone=!!STATE.completedTopics[t.id];
+        return `<div class="topic-item${isDone?' done':''}" style="cursor:default">
+          <div onclick="toggleTopicModal('${t.id}','${mid}')" style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer">
+            <div class="topic-check">${isDone?'✓':''}</div>
+            <div class="topic-name" style="flex:1;min-width:0">${t.name}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+            <div class="topic-type type-${t.type}">${t.type}</div>
+            <a href="${t.url}" target="_blank" onclick="event.stopPropagation()" title="Open on Trailhead" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:rgba(0,168,232,0.1);border:1px solid rgba(0,168,232,0.25);color:var(--accent);font-size:13px;text-decoration:none;flex-shrink:0" onmouseover="this.style.background='rgba(0,168,232,0.25)'" onmouseout="this.style.background='rgba(0,168,232,0.1)'">↗</a>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  document.getElementById('moduleModal').classList.add('open');
+}
+
+function toggleTopicModal(tid, mid) {
+  STATE.completedTopics[tid] = !STATE.completedTopics[tid];
+  if(STATE.completedTopics[tid]) STATE.xp = (STATE.xp||0)+50;
+  else STATE.xp = Math.max(0,(STATE.xp||0)-50);
+  saveState(STATE);
+  openModuleModal(mid);
+  renderDashboard(); renderModules(); checkBadges();
+}
+
+function closeModal() { document.getElementById('moduleModal').classList.remove('open'); }
+document.getElementById('moduleModal').addEventListener('click',e=>{ if(e.target.id==='moduleModal') closeModal(); });
+
+// ============================================================
+// TOPICS
+// ============================================================
+function renderTopics() {
+  const modFilter = document.getElementById('moduleFilter').value;
+  const typeFilter = document.getElementById('typeFilter').value;
+  const statusFilter = document.getElementById('statusFilter').value;
+  let allTopics = [];
+  MODULES.forEach(m=>m.topics.forEach(t=>allTopics.push({...t,modId:m.id,modName:m.name,modIcon:m.icon,modColor:m.color})));
+  let filtered = allTopics;
+  if(modFilter!=='all') filtered=filtered.filter(t=>t.modId===modFilter);
+  if(typeFilter!=='all') filtered=filtered.filter(t=>t.type===typeFilter||(typeFilter==='theory'&&t.type==='both')||(typeFilter==='coding'&&t.type==='both'));
+  if(statusFilter==='done') filtered=filtered.filter(t=>STATE.completedTopics[t.id]);
+  if(statusFilter==='todo') filtered=filtered.filter(t=>!STATE.completedTopics[t.id]);
+
+  document.getElementById('topicsFilterCount').textContent = filtered.length+' topics';
+  const list = document.getElementById('topicsList');
+  list.innerHTML=filtered.map(t=>{
+    const isDone=!!STATE.completedTopics[t.id];
+    // Determine link label: trailhead vs developer.salesforce.com vs help.salesforce.com
+    let linkLabel='🛤️ Trailhead', linkColor='var(--accent)', linkBg='rgba(0,168,232,0.1)', linkBorder='rgba(0,168,232,0.25)';
+    if(t.url.includes('developer.salesforce.com')){
+      linkLabel='📖 Dev Docs'; linkColor='#a78bfa'; linkBg='rgba(124,58,237,0.1)'; linkBorder='rgba(124,58,237,0.25)';
+    } else if(t.url.includes('help.salesforce.com')){
+      linkLabel='💡 SF Help'; linkColor='var(--accent3)'; linkBg='rgba(16,185,129,0.1)'; linkBorder='rgba(16,185,129,0.25)';
+    }
+    return `<div class="topic-item${isDone?' done':''}" style="cursor:default;flex-wrap:wrap;gap:8px">
+      <div onclick="toggleTopic('${t.id}')" style="display:flex;align-items:center;gap:10px;flex:1;min-width:200px;cursor:pointer">
+        <div class="topic-check">${isDone?'✓':''}</div>
+        <div style="flex:1;min-width:0">
+          <div class="topic-name">${t.name}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">${t.modIcon} ${t.modName}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <div class="topic-type type-${t.type}">${t.type}</div>
+        <a href="${t.url}" target="_blank" onclick="event.stopPropagation()"
+           style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:${linkBg};border:1px solid ${linkBorder};color:${linkColor};font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap;transition:opacity 0.2s"
+           onmouseover="this.style.opacity='0.75'" onmouseout="this.style.opacity='1'">${linkLabel} ↗</a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function populateModuleFilter() {
+  const sel = document.getElementById('moduleFilter');
+  MODULES.forEach(m=>{ sel.innerHTML+=`<option value="${m.id}">${m.icon} ${m.name}</option>`; });
+}
+
+function toggleTopic(tid) {
+  STATE.completedTopics[tid]=!STATE.completedTopics[tid];
+  if(STATE.completedTopics[tid]) STATE.xp=(STATE.xp||0)+50;
+  else STATE.xp=Math.max(0,(STATE.xp||0)-50);
+  saveState(STATE);
+  renderTopics(); renderDashboard(); renderModules(); checkBadges();
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function renderProgress() {
+  const el = document.getElementById('progressModuleBars');
+  el.innerHTML='';
+  MODULES.forEach(m=>{
+    const done=m.topics.filter(t=>STATE.completedTopics[t.id]).length;
+    const pct=Math.round(done/m.topics.length*100);
+    el.innerHTML+=`<div class="progress-bar-wrap">
+      <div class="progress-bar-header">
+        <span class="progress-bar-name">${m.icon} ${m.name}</span>
+        <span class="progress-bar-pct" style="color:${m.color}">${done}/${m.topics.length}</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:${m.color}"></div></div>
+    </div>`;
+  });
+
+  // Weekly log
+  const logEl = document.getElementById('weeklyLog');
+  const recent = [...STATE.studyDays].sort().slice(-14);
+  if(!recent.length){ logEl.innerHTML='<div style="color:var(--text3);font-size:13px">No study days logged yet. Click "Mark Today Done" to start!</div>'; return; }
+  logEl.innerHTML=recent.reverse().map(d=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+    <span style="color:var(--accent3)">✓</span>
+    <span style="color:var(--text2)">${d}</span>
+  </div>`).join('');
+}
+
+// ============================================================
+// BADGES
+// ============================================================
+function checkBadges() {
+  const stats = computeStats();
+  const earned = STATE.earnedBadges||{};
+  BADGES.forEach(b=>{
+    if(!earned[b.id] && b.condition(stats)){
+      earned[b.id]=true;
+      STATE.earnedBadges=earned;
+      saveState(STATE);
+      showBadgeToast(b);
+    }
+  });
+}
+function showBadgeToast(b) {
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid rgba(245,158,11,0.4);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:12px;font-family:DM Sans,sans-serif;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:fadeUp 0.4s ease';
+  t.innerHTML=`<span style="font-size:28px">${b.emoji}</span><div><div style="font-weight:700;font-size:14px;color:#f59e0b">Badge Unlocked!</div><div style="font-size:12px;color:var(--text3)">${b.name}</div></div>`;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
+function renderBadges() {
+  const earned = STATE.earnedBadges||{};
+  document.getElementById('badgeGrid').innerHTML=BADGES.map(b=>`<div class="badge-item${earned[b.id]?' earned':''}">
+    <div class="badge-emoji">${b.emoji}</div>
+    <div class="badge-name">${b.name}</div>
+    <div class="badge-desc">${b.desc}</div>
+  </div>`).join('');
+}
+
+// ============================================================
+// NOTES
+// ============================================================
+function renderNotesModuleSelect() {
+  const sel = document.getElementById('notesModuleSelect');
+  sel.innerHTML=MODULES.map(m=>`<option value="${m.id}">${m.icon} ${m.name}</option>`).join('');
+  loadNote();
+}
+function loadNote() {
+  const mid = document.getElementById('notesModuleSelect').value;
+  document.getElementById('notesArea').value = (STATE.notes||{})[mid]||'';
+}
+function saveNote() {
+  const mid = document.getElementById('notesModuleSelect').value;
+  STATE.notes = STATE.notes||{};
+  STATE.notes[mid] = document.getElementById('notesArea').value;
+  saveState(STATE);
+  const s = document.getElementById('notesSaveStatus');
+  s.textContent='Saved ✓'; s.style.color='var(--accent3)';
+  setTimeout(()=>{ s.textContent=''; }, 2000);
+  checkBadges();
+}
+function clearNote() {
+  document.getElementById('notesArea').value='';
+  saveNote();
+}
+
+// ============================================================
+// STUDY TIMER
+// ============================================================
+let timerInterval=null, timerSeconds=25*60, timerRunning=false;
+function toggleTimer(){
+  if(timerRunning){
+    clearInterval(timerInterval); timerRunning=false;
+    document.getElementById('timerStartBtn').textContent='▶ Start';
+    document.getElementById('timerStartBtn').classList.remove('running');
+  } else {
+    timerRunning=true;
+    document.getElementById('timerStartBtn').textContent='⏸ Pause';
+    document.getElementById('timerStartBtn').classList.add('running');
+    timerInterval=setInterval(()=>{
+      timerSeconds--;
+      if(timerSeconds<=0){
+        clearInterval(timerInterval); timerRunning=false;
+        document.getElementById('timerStartBtn').textContent='▶ Start';
+        document.getElementById('timerStartBtn').classList.remove('running');
+        timerSeconds=25*60;
+        alert('⏰ Pomodoro done! Take a 5-min break. 🧠');
+        markTodayDone();
+      }
+      updateTimerDisplay();
+    },1000);
+  }
+}
+function resetTimer(){ clearInterval(timerInterval); timerRunning=false; timerSeconds=25*60; updateTimerDisplay(); document.getElementById('timerStartBtn').textContent='▶ Start'; document.getElementById('timerStartBtn').classList.remove('running'); }
+function updateTimerDisplay(){ const m=Math.floor(timerSeconds/60), s=timerSeconds%60; document.getElementById('timerDisplay').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+
+// ============================================================
+// MARK TODAY DONE
+// ============================================================
+function markTodayDone(){
+  const today = new Date().toISOString().slice(0,10);
+  if(!STATE.studyDays.includes(today)){
+    STATE.studyDays.push(today);
+    // streak
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+    const yKey = yesterday.toISOString().slice(0,10);
+    STATE.streak = (STATE.studyDays.includes(yKey)||(STATE.streak||0)===0) ? (STATE.streak||0)+1 : 1;
+    STATE.xp=(STATE.xp||0)+100;
+    saveState(STATE);
+    renderDashboard(); renderProgress(); checkBadges();
+    const t=document.createElement('div');
+    t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--surface);border:1px solid rgba(16,185,129,0.4);border-radius:14px;padding:14px 20px;font-family:DM Sans,sans-serif;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:fadeUp 0.4s ease;color:var(--accent3);font-weight:600';
+    t.textContent='✓ Today logged! +100 XP 🔥 Streak: '+STATE.streak;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(),3500);
+  }
+}
+
+// ============================================================
+// RESOURCES
+// ============================================================
+function renderResources(){
+  function rItem(r){ return `<a class="resource-item" href="${r.url}" target="_blank"><span class="resource-icon">${r.icon}</span><div><div style="font-size:13px;font-weight:500">${r.name}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${r.desc}</div></div><span class="resource-arrow">→</span></a>`; }
+  document.getElementById('resourcesOfficial').innerHTML=RESOURCES_OFFICIAL.map(rItem).join('');
+  document.getElementById('resourcesPractice').innerHTML=RESOURCES_PRACTICE.map(rItem).join('');
+  document.getElementById('resourcesCommunity').innerHTML=RESOURCES_COMMUNITY.map(rItem).join('');
+  document.getElementById('tipsList').innerHTML=`<div class="card-title">💡 Tips for People Who Keep Starting Over</div>
+    <div style="display:flex;flex-direction:column;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.7">
+      <div>🎯 <strong>Don't restart — continue.</strong> If you stopped 3 months ago, just pick up from the next incomplete topic. No shame, no replay.</div>
+      <div>⏱️ <strong>1 hour is enough.</strong> You don't need 3+ hours to make progress. 60 mins of focused theory builds up fast over weeks.</div>
+      <div>📅 <strong>Calendar block your hour.</strong> Treat it like a meeting. Put it in your calendar every weekday at the same time.</div>
+      <div>✅ <strong>Use this tracker daily.</strong> Even if you only read one page, check it off. Momentum beats marathon sessions.</div>
+      <div>🧩 <strong>Build something every weekend.</strong> Theory without practice is forgettable. Even a tiny Apex trigger or LWC component locks it in.</div>
+      <div>🏆 <strong>Aim for the Admin cert first.</strong> It gives you a concrete external deadline and a credential milestone to work toward.</div>
+      <div>🤝 <strong>Find a study buddy.</strong> Join the Trailblazer Community, post your progress, or share your streak with someone — accountability works.</div>
+    </div>`;
+}
+
+// ============================================================
+// MOCK INTERVIEW
+// ============================================================
+function populateInterviewModuleSelect(){
+  const sel = document.getElementById('interviewModuleSelect');
+  if(!sel) return;
+  sel.innerHTML = MODULES.map(m=>`<option value="${m.id}">${m.icon} ${m.name}</option>`).join('');
+}
+
+function renderInterview(){
+  const sel = document.getElementById('interviewModuleSelect');
+  if(!sel) return;
+  if(!sel.options.length) populateInterviewModuleSelect();
+  const mid = sel.value || sel.options[0].value;
+  const qs = INTERVIEW_QUESTIONS[mid] || [];
+  STATE.interviewPracticed = STATE.interviewPracticed || {};
+  const practicedMap = STATE.interviewPracticed[mid] || {};
+  const practicedCount = qs.filter((_,i)=>practicedMap[i]).length;
+
+  const progressEl = document.getElementById('interviewProgressText');
+  if(progressEl) progressEl.textContent = qs.length ? `${practicedCount}/${qs.length} practiced` : '';
+
+  const list = document.getElementById('interviewCardList');
+  if(!list) return;
+  if(!qs.length){ list.innerHTML = '<div class="card" style="color:var(--text3);font-size:13px">No questions for this module yet.</div>'; return; }
+
+  list.innerHTML = qs.map((item,i)=>{
+    const isPracticed = !!practicedMap[i];
+    return `<div class="interview-card${isPracticed?' practiced':''}" id="intcard-${mid}-${i}">
+      <div class="interview-q-row">
+        <div class="interview-q-num">Q${i+1}</div>
+        <div class="interview-q-text">${item.q}</div>
+        ${isPracticed?'<div class="interview-got-it">✓ Got it</div>':''}
+      </div>
+      <div class="interview-answer-wrap" id="intans-${mid}-${i}" style="display:none">
+        <div class="interview-answer-text">${item.a}</div>
+      </div>
+      <div class="interview-card-actions">
+        <button class="interview-btn reveal" onclick="toggleAnswer('${mid}',${i})">👁 Show Answer</button>
+        <button class="interview-btn ${isPracticed?'undo':'gotit'}" onclick="toggleInterviewPracticed('${mid}',${i})">${isPracticed?'↺ Mark Unpracticed':'✓ Got It'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAnswer(mid, i){
+  const el = document.getElementById(`intans-${mid}-${i}`);
+  if(!el) return;
+  const card = document.getElementById(`intcard-${mid}-${i}`);
+  const btn = card ? card.querySelector('.reveal') : null;
+  const showing = el.style.display !== 'none';
+  el.style.display = showing ? 'none' : 'block';
+  if(btn) btn.textContent = showing ? '👁 Show Answer' : '🙈 Hide Answer';
+}
+
+function toggleInterviewPracticed(mid, i){
+  STATE.interviewPracticed = STATE.interviewPracticed || {};
+  STATE.interviewPracticed[mid] = STATE.interviewPracticed[mid] || {};
+  const wasPracticed = !!STATE.interviewPracticed[mid][i];
+  STATE.interviewPracticed[mid][i] = !wasPracticed;
+  STATE.xp = Math.max(0, (STATE.xp||0) + (wasPracticed ? -20 : 20));
+  saveState(STATE);
+  renderInterview();
+  renderDashboard();
+  checkBadges();
+}
+
+function resetInterviewModule(){
+  const sel = document.getElementById('interviewModuleSelect');
+  const mid = sel ? sel.value : null;
+  if(!mid || !STATE.interviewPracticed || !STATE.interviewPracticed[mid]){ renderInterview(); return; }
+  delete STATE.interviewPracticed[mid];
+  saveState(STATE);
+  renderInterview();
+  renderDashboard();
+}
+
+// ============================================================
+// RELEASE UPDATES — year by year
+// ============================================================
+function renderReleases(){
+  const container = document.getElementById('releasesTimeline');
+  if(!container) return;
+  container.innerHTML = RELEASES.map(yearGroup=>{
+    const itemsHtml = yearGroup.items.map(rel=>`<div class="release-card">
+      <div class="release-card-header">
+        <div class="release-name-row">
+          <div class="release-name">${rel.name}</div>
+          ${rel.current?'<div class="release-current-badge">● Latest</div>':''}
+        </div>
+        <div class="release-date">${rel.date}</div>
+      </div>
+      <div class="release-theme">${rel.theme}</div>
+      <div class="release-highlights">
+        ${rel.highlights.map(h=>`<div class="release-highlight-item"><span class="release-highlight-dot">•</span><span>${h}</span></div>`).join('')}
+      </div>
+      <a href="${rel.link}" target="_blank" class="release-link">📖 Explore this release →</a>
+    </div>`).join('');
+    return `<div class="release-year-group">
+      <div class="release-year-label">${yearGroup.year}</div>
+      <div class="release-year-items">${itemsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// DAILY TIP — rotating tip-of-the-day + browsable archive
+// ============================================================
+function getTodayTipIndex(){
+  const epoch = new Date(2025,0,1);
+  const now = new Date();
+  const diffDays = Math.floor((now - epoch) / (1000*60*60*24));
+  return ((diffDays % TIPS.length) + TIPS.length) % TIPS.length;
+}
+
+function renderDailyTip(){
+  const heroEl = document.getElementById('todayTipCard');
+  if(!heroEl) return;
+  const idx = getTodayTipIndex();
+  const tip = TIPS[idx];
+  STATE.readTips = STATE.readTips || {};
+  const isRead = !!STATE.readTips[idx];
+  heroEl.innerHTML = `
+    <div class="card-title">💡 Today's Tip</div>
+    <div class="tip-hero">
+      <div class="tip-hero-cat">${tip.cat}</div>
+      <div class="tip-hero-title">${tip.title}</div>
+      <div class="tip-hero-body">${tip.body}</div>
+      <button class="btn ${isRead?'btn-ghost':'btn-primary'}" onclick="toggleTipRead(${idx})">${isRead?'✓ Marked Read':'Mark as Read (+10 XP)'}</button>
+    </div>`;
+
+  const cats = ['All', ...Array.from(new Set(TIPS.map(t=>t.cat)))];
+  const activeCat = window._activeTipCat || 'All';
+  const filterEl = document.getElementById('tipCategoryFilters');
+  if(filterEl){
+    filterEl.innerHTML = cats.map(c=>`<button class="tip-cat-pill${c===activeCat?' active':''}" onclick="filterTips('${c}')">${c}</button>`).join('');
+  }
+  renderTipArchive();
+}
+
+function filterTips(cat){
+  window._activeTipCat = cat;
+  renderDailyTip();
+}
+
+function renderTipArchive(){
+  const listEl = document.getElementById('tipArchiveList');
+  if(!listEl) return;
+  const activeCat = window._activeTipCat || 'All';
+  STATE.readTips = STATE.readTips || {};
+  const filtered = TIPS.map((t,i)=>({...t,idx:i})).filter(t=>activeCat==='All'||t.cat===activeCat);
+  listEl.innerHTML = filtered.map(t=>{
+    const isRead = !!STATE.readTips[t.idx];
+    return `<div class="tip-archive-item${isRead?' read':''}" onclick="toggleTipRead(${t.idx})">
+      <div class="tip-archive-check">${isRead?'✓':''}</div>
+      <div style="flex:1;min-width:0">
+        <div class="tip-archive-title">${t.title}</div>
+        <div class="tip-archive-body">${t.body}</div>
+      </div>
+      <div class="tip-archive-cat">${t.cat}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTipRead(idx){
+  STATE.readTips = STATE.readTips || {};
+  const was = !!STATE.readTips[idx];
+  STATE.readTips[idx] = !was;
+  STATE.xp = Math.max(0, (STATE.xp||0) + (was ? -10 : 10));
+  saveState(STATE);
+  renderDailyTip();
+  renderDashboard();
+  checkBadges();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init(){
+  populateModuleFilter();
+  populateInterviewModuleSelect();
+  renderDashboard();
+  renderRoadmap();
+  renderTimetable();
+  renderModules();
+  renderResources();
+  renderInterview();
+  renderReleases();
+  renderDailyTip();
+  checkBadges();
+  // Auto-save notes on input
+  document.getElementById('notesArea').addEventListener('input', ()=>{
+    clearTimeout(window._noteSaveTimer);
+    window._noteSaveTimer=setTimeout(saveNote,1500);
+  });
+}
+init();
+</script>
+</body>
+</html>
