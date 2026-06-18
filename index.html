@@ -701,6 +701,32 @@
     flex-shrink:0; font-size:10px; font-weight:600; color:var(--text3);
     background:var(--surface3); padding:3px 9px; border-radius:20px; white-space:nowrap;
   }
+
+  /* ===== AI INTERVIEW CHAT ===== */
+  .chat-bubble-row { display:flex; gap:10px; align-items:flex-start; animation:fadeUp 0.3s ease; }
+  .chat-bubble-row.user { flex-direction:row-reverse; }
+  .chat-avatar {
+    width:30px; height:30px; border-radius:8px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:15px;
+  }
+  .chat-avatar.assistant { background:linear-gradient(135deg,var(--accent),var(--accent2)); }
+  .chat-avatar.user { background:var(--surface3); }
+  .chat-bubble {
+    max-width:75%; padding:11px 15px; border-radius:14px;
+    font-size:13.5px; line-height:1.6; white-space:pre-wrap; word-wrap:break-word;
+  }
+  .chat-bubble.assistant { background:var(--surface2); border:1px solid var(--border); border-top-left-radius:4px; }
+  .chat-bubble.user { background:linear-gradient(135deg,rgba(0,168,232,0.18),rgba(124,58,237,0.14)); border:1px solid rgba(0,168,232,0.25); border-top-right-radius:4px; }
+  .chat-typing { display:flex; gap:4px; padding:4px 0; }
+  .chat-typing span {
+    width:6px; height:6px; border-radius:50%; background:var(--text3);
+    animation:typingBounce 1.2s infinite ease-in-out;
+  }
+  .chat-typing span:nth-child(2) { animation-delay:0.15s; }
+  .chat-typing span:nth-child(3) { animation-delay:0.3s; }
+  @keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-4px);opacity:1} }
+  .chat-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; color:var(--text3); padding:40px 20px; }
+  .chat-empty-state-icon { font-size:36px; margin-bottom:12px; opacity:0.6; }
 </style>
 </head>
 <body>
@@ -943,16 +969,111 @@
 
     <!-- ===== MOCK INTERVIEW ===== -->
     <section class="section" id="sec-interview">
-      <div class="card full-row">
-        <div class="card-title">🎤 Practice Interview Questions</div>
-        <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Pick a module, read the question, think through your answer out loud, then reveal to check yourself. Be honest about "Got it" vs "Review Again" — that's what makes this useful.</p>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
-          <select id="interviewModuleSelect" onchange="renderInterview()"></select>
-          <div style="font-size:12px;color:var(--text3)" id="interviewProgressText"></div>
-          <button class="btn btn-ghost" style="margin-left:auto" onclick="resetInterviewModule()">↺ Reset Module</button>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchInterviewMode(this,'selfstudy')">📝 Self-Study Q&A</button>
+        <button class="tab-btn" onclick="switchInterviewMode(this,'aichat')">🤖 AI Interview (Live)</button>
+        <button class="tab-btn" onclick="switchInterviewMode(this,'chatgpt')">💬 ChatGPT Interviewer</button>
+      </div>
+
+      <!-- SELF STUDY MODE -->
+      <div class="tab-content active" id="interview-selfstudy">
+        <div class="card full-row">
+          <div class="card-title">🎤 Practice Interview Questions</div>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Pick a module, read the question, think through your answer out loud, then reveal to check yourself. Be honest about "Got it" vs "Review Again" — that's what makes this useful.</p>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+            <select id="interviewModuleSelect" onchange="renderInterview()"></select>
+            <div style="font-size:12px;color:var(--text3)" id="interviewProgressText"></div>
+            <button class="btn btn-ghost" style="margin-left:auto" onclick="resetInterviewModule()">↺ Reset Module</button>
+          </div>
+        </div>
+        <div id="interviewCardList" style="margin-top:16px;display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+
+      <!-- AI INTERVIEW MODE -->
+      <div class="tab-content" id="interview-aichat">
+
+        <!-- API key setup panel (shown when no key saved) -->
+        <div class="card full-row" id="aiKeySetupPanel">
+          <div class="card-title">🔑 Connect Your Claude API Key</div>
+          <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">
+            This runs a real live mock interview powered by Claude, directly in your browser. Your API key is stored
+            only in <strong>your browser's local storage</strong> — it is never sent anywhere except directly to Anthropic's servers.
+            Nothing passes through any third-party server. Usage is billed to your own Anthropic account.
+          </p>
+          <div style="display:flex;flex-direction:column;gap:12px;max-width:480px">
+            <div>
+              <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Anthropic API Key</div>
+              <input type="text" id="apiKeyInput" placeholder="sk-ant-api03-..." style="width:100%;font-family:monospace" autocomplete="off" spellcheck="false">
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Model</div>
+              <select id="apiModelSelect" style="width:100%">
+                <option value="claude-sonnet-4-6" selected>Claude Sonnet 4.6 — balanced (recommended)</option>
+                <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — fastest / cheapest</option>
+                <option value="claude-opus-4-7">Claude Opus 4.7 — most capable</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveApiKey()" style="align-self:flex-start">💾 Save & Start Interviewing</button>
+          </div>
+          <div id="apiKeyError" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-size:12.5px"></div>
+          <p style="font-size:11.5px;color:var(--text3);margin-top:14px">
+            Don't have a key? Get one free at <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent)">console.anthropic.com</a> — new accounts get starter credit.
+          </p>
+        </div>
+
+        <!-- Chat panel (shown once key saved) -->
+        <div id="aiChatPanel" style="display:none">
+          <div class="card" style="margin-bottom:14px">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <select id="aiInterviewModuleSelect"></select>
+              <button class="btn btn-primary" onclick="startAIInterview()">▶ Start New Interview</button>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+                <span id="aiModelBadge" style="font-size:11px;color:var(--text3)"></span>
+                <button class="btn btn-ghost" onclick="showApiKeySettings()">⚙ Change Key</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:560px">
+            <div id="chatMessages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px"></div>
+            <div id="chatErrorBanner" style="display:none;margin:0 16px 10px;padding:10px 14px;border-radius:8px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#f87171;font-size:12.5px"></div>
+            <div style="border-top:1px solid var(--border);padding:14px 16px;display:flex;gap:10px;align-items:flex-end">
+              <textarea id="chatInput" placeholder="Type your answer... (Enter to send, Shift+Enter for new line)" rows="1"
+                style="flex:1;resize:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13.5px;outline:none;max-height:120px"
+                onkeydown="handleChatKeydown(event)"></textarea>
+              <button class="btn btn-primary" id="chatSendBtn" onclick="sendInterviewMessage()" style="flex-shrink:0">Send</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="interviewCardList" style="margin-top:16px;display:flex;flex-direction:column;gap:12px"></div>
+
+      <!-- CHATGPT INTERVIEWER (launches in new tab — OpenAI blocks iframe embedding) -->
+      <div class="tab-content" id="interview-chatgpt">
+        <div class="card full-row" style="text-align:center;padding:40px 28px">
+          <div style="font-size:48px;margin-bottom:16px">💬</div>
+          <div class="card-title" style="justify-content:center;font-size:18px;color:var(--text);margin-bottom:10px">Salesforce Interviewer — Custom GPT</div>
+          <p style="font-size:13.5px;color:var(--text2);line-height:1.65;max-width:480px;margin:0 auto 24px">
+            A custom-built ChatGPT agent that conducts a Salesforce mock interview, purpose-made for interview prep.
+            It opens in a new tab — ChatGPT doesn't allow other sites to embed it directly (a security restriction
+            on their end, not something this page can work around), and it requires you to be signed in to a ChatGPT account.
+          </p>
+          <a href="https://chatgpt.com/g/g-p-6a3471ce61bc81918e9a930c328b7354-salesforce-interviewer/project"
+             target="_blank" rel="noopener noreferrer"
+             class="btn btn-primary" style="display:inline-flex;align-items:center;gap:8px;font-size:14px;padding:12px 28px;text-decoration:none">
+            🚀 Launch Salesforce Interviewer GPT
+          </a>
+          <p style="font-size:11.5px;color:var(--text3);margin-top:18px">Opens in a new tab · requires a ChatGPT account · your progress here stays saved</p>
+        </div>
+
+        <div class="card full-row">
+          <div class="card-title">When to use which interview tool</div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--text2);line-height:1.6">
+            <div>🤖 <strong>AI Interview (Live)</strong> — stays on this page, uses your own Claude API key, good if you want to track XP/streaks while practicing.</div>
+            <div>💬 <strong>ChatGPT Interviewer</strong> — a separately maintained custom GPT, good for a second opinion or a different interview style without needing your own API key.</div>
+            <div>📝 <strong>Self-Study Q&A</strong> — fastest option, no account or key needed, good for quick daily drilling.</div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ===== PROGRESS ===== -->
@@ -1652,6 +1773,12 @@ const LS_KEY = 'sfhub_v2_state';
 function defaultState() {
   return { completedTopics:{}, studyDays:[], streak:0, lastStudyDate:null, notes:{}, xp:0, earnedBadges:{}, interviewPracticed:{}, readTips:{}, _version:2 };
 }
+// Anthropic API key is stored under its own dedicated localStorage key (not the versioned
+// progress blob above) so "Change Key" / "Remove Key" never risks touching learning progress.
+const AI_KEY_LS = 'sfhub_anthropic_key';
+const AI_MODEL_LS = 'sfhub_anthropic_model';
+function getApiKey(){ try { return localStorage.getItem(AI_KEY_LS) || ''; } catch(e){ return ''; } }
+function getApiModel(){ try { return localStorage.getItem(AI_MODEL_LS) || 'claude-sonnet-4-6'; } catch(e){ return 'claude-sonnet-4-6'; } }
 function getState() {
   try {
     const raw = localStorage.getItem(LS_KEY);
@@ -2407,6 +2534,252 @@ function toggleTipRead(idx){
   renderDailyTip();
   renderDashboard();
   checkBadges();
+}
+
+// ============================================================
+// AI INTERVIEW (LIVE) — Claude-powered, browser-direct
+// ============================================================
+let chatHistory = [];          // [{role:'user'|'assistant', content:'...'}] — in-memory only, fresh per page load
+let currentChatModuleId = null;
+let chatInFlight = false;
+
+function switchInterviewMode(btn, mode){
+  btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('interview-selfstudy').classList.toggle('active', mode==='selfstudy');
+  document.getElementById('interview-aichat').classList.toggle('active', mode==='aichat');
+  document.getElementById('interview-chatgpt').classList.toggle('active', mode==='chatgpt');
+  if(mode==='aichat') initAIInterviewPanel();
+}
+
+function initAIInterviewPanel(){
+  populateAIInterviewModuleSelect();
+  const key = getApiKey();
+  if(key){ showChatPanel(); } else { showApiKeySettings(); }
+}
+
+function populateAIInterviewModuleSelect(){
+  const sel = document.getElementById('aiInterviewModuleSelect');
+  if(sel && !sel.options.length){
+    sel.innerHTML = MODULES.map(m=>`<option value="${m.id}">${m.icon} ${m.name}</option>`).join('');
+  }
+}
+
+function showApiKeySettings(){
+  document.getElementById('aiKeySetupPanel').style.display='block';
+  document.getElementById('aiChatPanel').style.display='none';
+  const existing = getApiKey();
+  if(existing) document.getElementById('apiKeyInput').value = existing;
+  const modelSel = document.getElementById('apiModelSelect');
+  if(modelSel) modelSel.value = getApiModel();
+  document.getElementById('apiKeyError').style.display='none';
+}
+
+function saveApiKey(){
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const model = document.getElementById('apiModelSelect').value;
+  const errEl = document.getElementById('apiKeyError');
+  if(!key || !key.startsWith('sk-ant-')){
+    errEl.textContent = '⚠️ That doesn\'t look like a valid Anthropic key — it should start with "sk-ant-". Get one at console.anthropic.com.';
+    errEl.style.display='block';
+    return;
+  }
+  try {
+    localStorage.setItem(AI_KEY_LS, key);
+    localStorage.setItem(AI_MODEL_LS, model);
+  } catch(e){
+    errEl.textContent = '⚠️ Could not save key — your browser storage may be full or disabled.';
+    errEl.style.display='block';
+    return;
+  }
+  errEl.style.display='none';
+  showChatPanel();
+}
+
+function removeApiKey(){
+  try { localStorage.removeItem(AI_KEY_LS); localStorage.removeItem(AI_MODEL_LS); } catch(e){}
+  chatHistory = []; currentChatModuleId = null;
+  showApiKeySettings();
+}
+
+function showChatPanel(){
+  document.getElementById('aiKeySetupPanel').style.display='none';
+  document.getElementById('aiChatPanel').style.display='block';
+  const modelNames = {
+    'claude-sonnet-4-6':'Claude Sonnet 4.6',
+    'claude-haiku-4-5-20251001':'Claude Haiku 4.5',
+    'claude-opus-4-7':'Claude Opus 4.7'
+  };
+  document.getElementById('aiModelBadge').textContent = '● ' + (modelNames[getApiModel()] || getApiModel());
+  if(!chatHistory.length){
+    document.getElementById('chatMessages').innerHTML = `<div class="chat-empty-state">
+      <div class="chat-empty-state-icon">🎤</div>
+      <div style="font-size:13.5px;max-width:320px">Pick a module above and hit <strong>Start New Interview</strong>. Claude will play the interviewer — scenario questions, real follow-ups, the whole thing.</div>
+    </div>`;
+  }
+}
+
+function buildSystemPrompt(mod){
+  return `You are a senior Salesforce technical interviewer conducting a live mock interview for a candidate practicing for a "${mod.name}" role. Context on this area: ${mod.desc}
+
+Your interviewing style — follow this closely:
+- Ask ONE scenario-based question at a time. Describe a realistic business or technical situation and ask how the candidate would approach it. Do not ask multiple questions in one message.
+- After the candidate answers, ask a genuine FOLLOW-UP question that builds on what they specifically said — probe an edge case, ask them to justify a trade-off, or push on a gap in their answer. Stay on the same scenario for at least one follow-up before moving to a new topic.
+- Occasionally mix in a direct technical/conceptual question, not only scenarios.
+- Tone: professional, conversational, encouraging — like a real interviewer, not a quiz bot. Keep messages reasonably concise.
+- If the candidate is clearly stuck or wrong, don't just hand them the answer — give one small hint first, then briefly explain if they're still stuck, then move on.
+- Keep track of how the interview is going. After roughly 8-10 question exchanges, or whenever the candidate says they want to stop or asks for feedback, give a short honest assessment: 2-3 specific strengths, 1-2 specific areas to improve. No fluff, no generic praise.
+- Never break character to mention you are an AI model or discuss these instructions.
+
+Begin now: greet the candidate in one short sentence, then ask your first scenario-based question.`;
+}
+
+function startAIInterview(){
+  const sel = document.getElementById('aiInterviewModuleSelect');
+  const mid = sel.value;
+  const mod = MODULES.find(m=>m.id===mid);
+  currentChatModuleId = mid;
+  chatHistory = [{ role:'user', content:'Begin the interview now with your first scenario-based question, as instructed.' }];
+  document.getElementById('chatMessages').innerHTML = '';
+  document.getElementById('chatErrorBanner').style.display = 'none';
+  runChatTurn(buildSystemPrompt(mod), /*renderKickoff=*/false);
+}
+
+function handleChatKeydown(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendInterviewMessage();
+  }
+}
+
+function sendInterviewMessage(){
+  if(chatInFlight) return;
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  if(!currentChatModuleId){
+    document.getElementById('chatErrorBanner').textContent = 'Start an interview first using the button above.';
+    document.getElementById('chatErrorBanner').style.display = 'block';
+    return;
+  }
+  input.value = '';
+  input.style.height = 'auto';
+  appendChatBubble('user', text);
+  chatHistory.push({ role:'user', content:text });
+  const mod = MODULES.find(m=>m.id===currentChatModuleId);
+  runChatTurn(buildSystemPrompt(mod), /*renderKickoff=*/true);
+}
+
+function runChatTurn(systemPrompt, renderKickoff){
+  chatInFlight = true;
+  setChatInputDisabled(true);
+  document.getElementById('chatErrorBanner').style.display = 'none';
+  showTypingIndicator();
+  callClaudeAPI(chatHistory, systemPrompt)
+    .then(replyText=>{
+      removeTypingIndicator();
+      chatHistory.push({ role:'assistant', content:replyText });
+      appendChatBubble('assistant', replyText);
+      STATE.xp = (STATE.xp||0) + 15;
+      saveState(STATE);
+      renderDashboard();
+    })
+    .catch(err=>{
+      removeTypingIndicator();
+      const banner = document.getElementById('chatErrorBanner');
+      banner.textContent = '⚠️ ' + err.message;
+      banner.style.display = 'block';
+      // remove the dangling unanswered user turn so the conversation can be retried cleanly
+      if(chatHistory.length && chatHistory[chatHistory.length-1].role==='user' && renderKickoff===false){
+        chatHistory = [];
+      }
+    })
+    .finally(()=>{
+      chatInFlight = false;
+      setChatInputDisabled(false);
+      document.getElementById('chatInput').focus();
+    });
+}
+
+function setChatInputDisabled(disabled){
+  const input = document.getElementById('chatInput');
+  const btn = document.getElementById('chatSendBtn');
+  if(input) input.disabled = disabled;
+  if(btn){ btn.disabled = disabled; btn.textContent = disabled ? '...' : 'Send'; }
+}
+
+function appendChatBubble(role, text){
+  const container = document.getElementById('chatMessages');
+  const emptyState = container.querySelector('.chat-empty-state');
+  if(emptyState) emptyState.remove();
+  const row = document.createElement('div');
+  row.className = 'chat-bubble-row ' + role;
+  row.innerHTML = `
+    <div class="chat-avatar ${role}">${role==='assistant' ? '🤖' : '🙂'}</div>
+    <div class="chat-bubble ${role}"></div>`;
+  row.querySelector('.chat-bubble').textContent = text; // textContent — never render model output as HTML
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTypingIndicator(){
+  const container = document.getElementById('chatMessages');
+  const row = document.createElement('div');
+  row.className = 'chat-bubble-row assistant';
+  row.id = 'typingIndicatorRow';
+  row.innerHTML = `<div class="chat-avatar assistant">🤖</div>
+    <div class="chat-bubble assistant"><div class="chat-typing"><span></span><span></span><span></span></div></div>`;
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+}
+function removeTypingIndicator(){
+  const row = document.getElementById('typingIndicatorRow');
+  if(row) row.remove();
+}
+
+// Direct browser → Anthropic API call. Requires the special CORS-allow header;
+// Anthropic is currently the only major model API that supports this from client-side JS.
+async function callClaudeAPI(messages, systemPrompt){
+  const apiKey = getApiKey();
+  const model = getApiModel();
+  if(!apiKey) throw new Error('No API key saved. Click "Change Key" to add one.');
+
+  let res;
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: model,
+        max_tokens: 800,
+        system: systemPrompt,
+        messages: messages
+      })
+    });
+  } catch(networkErr){
+    throw new Error('Network error — could not reach Anthropic. Check your internet connection.');
+  }
+
+  if(res.status === 401){
+    throw new Error('Invalid API key. Click "Change Key" to update it.');
+  }
+  if(res.status === 429){
+    throw new Error('Rate limited by Anthropic — wait a moment and try again.');
+  }
+  if(!res.ok){
+    let msg = 'Request failed (status ' + res.status + ').';
+    try { const errJson = await res.json(); if(errJson.error && errJson.error.message) msg = errJson.error.message; } catch(e){}
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  const textBlock = (data.content||[]).find(b=>b.type==='text');
+  if(!textBlock) throw new Error('Unexpected response from Claude — no text returned.');
+  return textBlock.text;
 }
 
 // ============================================================
